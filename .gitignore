@@ -76,4 +76,7 @@ secrets.py
 
 # Backup files
 *.bak
-*.backup 
+*.backup
+
+# Local ngrok
+local_ngrok/ 

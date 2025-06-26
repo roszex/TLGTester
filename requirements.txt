@@ -1,0 +1,5 @@
+aiogram
+python-dotenv
+fastapi
+jinja2
+uvicorn 

@@ -11,7 +11,7 @@ import asyncio
 load_dotenv(".env")
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-WEBAPP_URL = "https://roszex.github.io/EmelyanovTGBot-webapp/page_1/index.html"
+WEBAPP_URL = "https://roszex.github.io/EmelyanovTGBot-webapp/"
 
 if not BOT_TOKEN or not WEBAPP_URL:
     raise RuntimeError("BOT_TOKEN и WEBAPP_URL должны быть заданы в env.github")

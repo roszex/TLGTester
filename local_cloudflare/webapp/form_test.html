@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Test</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .log {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background-color: #4CAF50; }
+        .error { background-color: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Тест формы</h1>
+        
+        <form id="testForm">
+            <div class="form-group">
+                <label for="age">Возраст:</label>
+                <input type="number" id="age" value="25" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="occupation">Профессия:</label>
+                <textarea id="occupation" rows="3" required>Тестировщик Telegram WebApp</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="income">Доход:</label>
+                <input type="text" id="income" value="80000 руб/мес" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="motivation">Мотивация:</label>
+                <input type="text" id="motivation" value="10 из 10" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="teamwork">Командная работа:</label>
+                <textarea id="teamwork" rows="3" required>Готов работать в команде и отлаживать проблемы</textarea>
+            </div>
+            
+            <button type="button" onclick="submitForm()">Отправить форму</button>
+        </form>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        <div id="logs" class="log"></div>
+    </div>
+
+    <script src="progress.js"></script>
+    <script>
+        // Перехватываем console.log
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        function addToLog(message, type = 'log') {
+            const logDiv = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToLog(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToLog(args.join(' '), 'error');
+        };
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== ФОРМА ТЕСТ ЗАПУЩЕН ===');
+            console.log('URL:', window.location.href);
+            console.log('User ID из URL:', new URLSearchParams(window.location.search).get('user_id'));
+            console.log('ProgressManager доступен:', !!window.progressManager);
+            if (window.progressManager) {
+                console.log('ProgressManager userId:', window.progressManager.userId);
+                console.log('ProgressManager apiBase:', window.progressManager.apiBase);
+            }
+        });
+
+        async function submitForm() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status';
+            statusDiv.textContent = 'Отправляем форму...';
+            
+            console.log('=== НАЧИНАЕМ ОТПРАВКУ ФОРМЫ ===');
+            
+            try {
+                // Собираем данные
+                const formData = {
+                    age: document.getElementById('age').value,
+                    occupation: document.getElementById('occupation').value.trim(),
+                    income: document.getElementById('income').value.trim(),
+                    motivation: document.getElementById('motivation').value.trim(),
+                    teamwork: document.getElementById('teamwork').value.trim()
+                };
+                
+                console.log('Собранные данные формы:', formData);
+                
+                // Проверяем ProgressManager
+                if (!window.progressManager) {
+                    throw new Error('ProgressManager недоступен');
+                }
+                
+                console.log('ProgressManager найден, сохраняем данные...');
+                
+                // Сохраняем данные
+                await window.progressManager.saveFormData(formData);
+                
+                console.log('Данные успешно сохранены!');
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ Форма успешно отправлена!';
+                
+                // Показываем уведомление в Telegram
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.showAlert('Форма успешно сохранена!');
+                }
+                
+            } catch (error) {
+                console.error('Ошибка отправки формы:', error);
+                
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `❌ Ошибка: ${error.message}`;
+                
+                // Показываем уведомление об ошибке в Telegram
+                if (window.Telegram && window.Telegram.WebApp) {
+                    window.Telegram.WebApp.showAlert(`Ошибка: ${error.message}`);
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

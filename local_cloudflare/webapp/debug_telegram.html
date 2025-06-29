@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Debug</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .debug-section {
+            background-color: #2a2a2a;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+        }
+        button {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+            width: 100%;
+        }
+        .log {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .error { color: #ff4444; }
+        .success { color: #4CAF50; }
+        .warning { color: #ffaa00; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Telegram WebApp Debug</h1>
+        
+        <div class="debug-section">
+            <h2>📱 Telegram WebApp Status</h2>
+            <div id="telegramStatus" class="log">Проверяем...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>🔗 URL & Parameters</h2>
+            <div id="urlInfo" class="log">Проверяем...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>👤 User ID Detection</h2>
+            <div id="userIdInfo" class="log">Проверяем...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>🌐 API Connection Test</h2>
+            <button onclick="testDirectFetch()">Test Direct Fetch</button>
+            <button onclick="testProgressManager()">Test ProgressManager</button>
+            <div id="apiTestResults" class="log">Нажмите кнопку для тестирования</div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>📊 Real-time Logs</h2>
+            <button onclick="clearLogs()">Clear Logs</button>
+            <div id="realtimeLogs" class="log"></div>
+        </div>
+    </div>
+
+    <script src="progress.js"></script>
+    <script>
+        // Перехватываем все console методы
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToLog(message, type = 'log') {
+            const logDiv = document.getElementById('realtimeLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'error' : type === 'warn' ? 'warning' : 'success';
+            logDiv.innerHTML += `<span class="${color}">[${timestamp}] ${type.toUpperCase()}: ${message}</span>\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToLog(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToLog(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToLog(args.join(' '), 'warn');
+        };
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== TELEGRAM DEBUG STARTED ===');
+            
+            // Проверяем Telegram WebApp
+            checkTelegramWebApp();
+            
+            // Проверяем URL и параметры
+            checkUrlInfo();
+            
+            // Проверяем User ID
+            checkUserIdInfo();
+        });
+
+        function checkTelegramWebApp() {
+            const status = {
+                telegramAvailable: !!(window.Telegram),
+                webAppAvailable: !!(window.Telegram && window.Telegram.WebApp),
+                version: window.Telegram?.WebApp?.version || 'N/A',
+                platform: window.Telegram?.WebApp?.platform || 'N/A',
+                initData: window.Telegram?.WebApp?.initData || 'N/A',
+                initDataUnsafe: window.Telegram?.WebApp?.initDataUnsafe || 'N/A',
+                user: window.Telegram?.WebApp?.initDataUnsafe?.user || 'N/A',
+                themeParams: window.Telegram?.WebApp?.themeParams || 'N/A'
+            };
+            
+            document.getElementById('telegramStatus').textContent = JSON.stringify(status, null, 2);
+            
+            if (status.webAppAvailable) {
+                console.log('✅ Telegram WebApp доступен');
+                console.log('Version:', status.version);
+                console.log('Platform:', status.platform);
+                console.log('User:', status.user);
+            } else {
+                console.error('❌ Telegram WebApp недоступен');
+            }
+        }
+
+        function checkUrlInfo() {
+            const urlInfo = {
+                fullUrl: window.location.href,
+                origin: window.location.origin,
+                protocol: window.location.protocol,
+                host: window.location.host,
+                pathname: window.location.pathname,
+                search: window.location.search,
+                urlParams: Object.fromEntries(new URLSearchParams(window.location.search))
+            };
+            
+            document.getElementById('urlInfo').textContent = JSON.stringify(urlInfo, null, 2);
+            console.log('URL Info:', urlInfo);
+        }
+
+        function checkUserIdInfo() {
+            const userIdInfo = {
+                urlUserId: new URLSearchParams(window.location.search).get('user_id'),
+                localStorageUserId: localStorage.getItem('user_id'),
+                localStorageTelegramId: localStorage.getItem('telegram_user_id'),
+                progressManagerUserId: window.progressManager?.userId || 'N/A',
+                progressManagerApiBase: window.progressManager?.apiBase || 'N/A',
+                progressManagerIsTelegram: window.progressManager?.isTelegramWebApp || false
+            };
+            
+            document.getElementById('userIdInfo').textContent = JSON.stringify(userIdInfo, null, 2);
+            console.log('User ID Info:', userIdInfo);
+        }
+
+        async function testDirectFetch() {
+            const resultsDiv = document.getElementById('apiTestResults');
+            resultsDiv.textContent = 'Testing direct fetch...\n';
+            
+            try {
+                // Тестируем прямой fetch без ProgressManager
+                const apiBase = window.location.origin;
+                const userId = new URLSearchParams(window.location.search).get('user_id') || 'test_user';
+                const url = `${apiBase}/api/user/${userId}`;
+                
+                console.log('Testing direct fetch to:', url);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Direct fetch response status:', response.status);
+                console.log('Direct fetch response headers:', Object.fromEntries(response.headers.entries()));
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultsDiv.textContent += `✅ Direct fetch SUCCESS\nStatus: ${response.status}\nData: ${JSON.stringify(data, null, 2)}\n`;
+                } else {
+                    const errorText = await response.text();
+                    resultsDiv.textContent += `❌ Direct fetch FAILED\nStatus: ${response.status}\nError: ${errorText}\n`;
+                }
+                
+            } catch (error) {
+                console.error('Direct fetch error:', error);
+                resultsDiv.textContent += `❌ Direct fetch ERROR\n${error.message}\n`;
+            }
+        }
+
+        async function testProgressManager() {
+            const resultsDiv = document.getElementById('apiTestResults');
+            resultsDiv.textContent += '\nTesting ProgressManager...\n';
+            
+            try {
+                if (!window.progressManager) {
+                    resultsDiv.textContent += '❌ ProgressManager не инициализирован\n';
+                    return;
+                }
+                
+                console.log('Testing ProgressManager...');
+                
+                // Тестируем получение данных
+                const userData = await window.progressManager.getUserData();
+                resultsDiv.textContent += `✅ ProgressManager getUserData SUCCESS\n${JSON.stringify(userData, null, 2)}\n`;
+                
+                // Тестируем сохранение прогресса
+                await window.progressManager.saveProgress(99);
+                resultsDiv.textContent += `✅ ProgressManager saveProgress SUCCESS\n`;
+                
+                // Тестируем сохранение формы
+                const testFormData = {
+                    age: "25",
+                    occupation: "Telegram Debugger",
+                    income: "100000 руб/мес",
+                    motivation: "10 из 10",
+                    teamwork: "Готов к отладке"
+                };
+                
+                await window.progressManager.saveFormData(testFormData);
+                resultsDiv.textContent += `✅ ProgressManager saveFormData SUCCESS\n`;
+                
+            } catch (error) {
+                console.error('ProgressManager test error:', error);
+                resultsDiv.textContent += `❌ ProgressManager ERROR\n${error.message}\n`;
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('realtimeLogs').innerHTML = '';
+        }
+    </script>
+</body>
+</html> 

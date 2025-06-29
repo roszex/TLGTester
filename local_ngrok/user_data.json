@@ -1,0 +1,68 @@
+{
+  "user_1751216646476_uejvit8us": {
+    "username": null,
+    "form_data": {
+      "age": "20",
+      "occupation": "sshjhdjhs sjhdjshjdhjshjdhs",
+      "income": "200000",
+      "motivation": "sdjskdkhskhdkshdkhs",
+      "teamwork": "sdhjsjjhdjhsjhdjhsjhd"
+    },
+    "current_page": 1,
+    "created_at": "29.06.2025 20:10:41"
+  },
+  "test_user_456": {
+    "username": "@test_user",
+    "form_data": {
+      "age": "25",
+      "occupation": "Программист",
+      "income": "80000 руб/мес",
+      "motivation": "10 из 10",
+      "teamwork": "Очень хочу работать в команде"
+    },
+    "current_page": 5,
+    "created_at": "29.06.2025 20:14:13"
+  },
+  "new_test_user_789": {
+    "username": "@new_test_user",
+    "form_data": {
+      "age": "30",
+      "occupation": "Дизайнер",
+      "income": "120000 руб/мес",
+      "motivation": "9 из 10",
+      "teamwork": "Готов работать в команде"
+    },
+    "current_page": 1,
+    "created_at": "29.06.2025 20:19:06"
+  },
+  "test_user_123": {
+    "username": null,
+    "form_data": {
+      "age": "25",
+      "occupation": "Тестировщик",
+      "income": "60000 руб/мес",
+      "motivation": "8 из 10",
+      "teamwork": "Готов к командной работе"
+    },
+    "current_page": 5,
+    "created_at": "29.06.2025 20:40:03"
+  },
+  "user_1751219232915_rq997i5gf": {
+    "username": null,
+    "form_data": {
+      "age": "25",
+      "occupation": "Мобильный тестировщик",
+      "income": "70000 руб/мес",
+      "motivation": "9 из 10",
+      "teamwork": "Готов к мобильной командной работе"
+    },
+    "current_page": 5,
+    "created_at": "29.06.2025 20:47:12"
+  },
+  "764903391": {
+    "username": "@stillactivepxlg",
+    "form_data": null,
+    "current_page": 1,
+    "created_at": "29.06.2025 22:45:55"
+  }
+}

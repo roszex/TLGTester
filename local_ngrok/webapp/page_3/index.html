@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Emelyanov WebApp - Контактная форма</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Telegram WebApp Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div class="container">
@@ -47,7 +49,67 @@
         </div>
         
         <button class="lets-go" id="submitBtn">Я заполнил! Что дальше?</button>
+        
+        <!-- Отладочная информация -->
+        <div id="debugInfo" style="background: #333; padding: 10px; margin-top: 20px; border-radius: 5px; font-family: monospace; font-size: 12px; display: none;">
+            <h3>Отладка:</h3>
+            <div id="debugContent"></div>
+        </div>
     </div>
-    <script src="main.js"></script>
+    
+    <script>
+        // Отладочная информация
+        function addDebugInfo(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            const debugContent = document.getElementById('debugContent');
+            debugDiv.style.display = 'block';
+            debugContent.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            console.log('DEBUG:', message);
+        }
+        
+        addDebugInfo('Страница загружается...');
+        addDebugInfo('URL: ' + window.location.href);
+        addDebugInfo('User ID из URL: ' + new URLSearchParams(window.location.search).get('user_id'));
+    </script>
+    
+    <script src="../progress.js" onload="addDebugInfo('progress.js загружен')" onerror="addDebugInfo('ОШИБКА загрузки progress.js')"></script>
+    
+    <script>
+        addDebugInfo('Проверяем ProgressManager...');
+        addDebugInfo('window.progressManager: ' + (window.progressManager ? 'ДОСТУПЕН' : 'НЕДОСТУПЕН'));
+        
+        if (window.progressManager) {
+            addDebugInfo('ProgressManager userId: ' + window.progressManager.userId);
+            addDebugInfo('ProgressManager serverUrl: ' + window.progressManager.serverUrl);
+            addDebugInfo('ProgressManager isTelegramWebApp: ' + window.progressManager.isTelegramWebApp);
+        }
+    </script>
+    
+    <script src="main.js" onload="addDebugInfo('main.js загружен')" onerror="addDebugInfo('ОШИБКА загрузки main.js')"></script>
+    
+    <script>
+        addDebugInfo('Все скрипты загружены');
+        
+        // Проверяем еще раз после загрузки всех скриптов
+        setTimeout(() => {
+            addDebugInfo('Финальная проверка ProgressManager: ' + (window.progressManager ? 'ДОСТУПЕН' : 'НЕДОСТУПЕН'));
+            
+            // Если ProgressManager недоступен, пробуем инициализировать вручную
+            if (!window.progressManager) {
+                addDebugInfo('Пробуем инициализировать ProgressManager вручную...');
+                try {
+                    window.progressManager = new ProgressManager();
+                    addDebugInfo('ProgressManager инициализирован вручную: ' + (window.progressManager ? 'УСПЕХ' : 'НЕУДАЧА'));
+                } catch (error) {
+                    addDebugInfo('Ошибка ручной инициализации: ' + error.message);
+                }
+            }
+        }, 1000);
+        
+        // Дополнительная проверка через 3 секунды
+        setTimeout(() => {
+            addDebugInfo('Проверка через 3 секунды: ' + (window.progressManager ? 'ДОСТУПЕН' : 'НЕДОСТУПЕН'));
+        }, 3000);
+    </script>
 </body>
 </html>

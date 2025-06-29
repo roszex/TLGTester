@@ -60,41 +60,78 @@ function validateForm() {
 
 // Функция для сбора данных формы
 function collectFormData() {
+    console.log('=== collectFormData: Начинаем сбор данных ===');
+    
+    const age = document.getElementById('age').value;
+    const occupation = document.getElementById('occupation').value.trim();
+    const income = document.getElementById('income').value.trim();
+    const motivation = document.getElementById('motivation').value.trim();
+    const teamwork = document.getElementById('teamwork').value.trim();
+    
+    console.log('=== collectFormData: Собранные значения ===');
+    console.log('age:', age);
+    console.log('occupation:', occupation);
+    console.log('income:', income);
+    console.log('motivation:', motivation);
+    console.log('teamwork:', teamwork);
+    
     const formData = {
-        age: document.getElementById('age').value,
-        occupation: document.getElementById('occupation').value.trim(),
-        income: document.getElementById('income').value.trim(),
-        motivation: document.getElementById('motivation').value.trim(),
-        teamwork: document.getElementById('teamwork').value.trim(),
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent
+        age: age,
+        occupation: occupation,
+        income: income,
+        motivation: motivation,
+        teamwork: teamwork
     };
     
-    // Сохраняем данные в localStorage для возможного использования
-    localStorage.setItem('formData', JSON.stringify(formData));
-    
-    // Здесь можно добавить отправку данных на сервер
-    console.log('Собранные данные:', formData);
+    console.log('=== collectFormData: Финальный объект ===', formData);
     
     return formData;
 }
 
 // Обработчик клика по кнопке
-document.getElementById('submitBtn').addEventListener('click', function() {
+document.getElementById('submitBtn').addEventListener('click', async function() {
+    console.log('=== ФОРМА: Кнопка отправки нажата ===');
+    
     // Скрываем клавиатуру только при нажатии на кнопку отправки
     hideKeyboard();
     
     if (validateForm()) {
+        console.log('=== ФОРМА: Валидация прошла успешно ===');
+        
         // Собираем данные формы
         const formData = collectFormData();
+        console.log('=== ФОРМА: Собранные данные ===', formData);
         
-        // Переходим на следующую страницу
-        const currentUrl = window.location.href;
-        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-        const newUrl = baseUrl + '/../page_4/index.html';
-        
-        console.log('Navigating to:', newUrl);
-        window.location.href = newUrl;
+        // Проверяем, доступен ли ProgressManager
+        if (window.progressManager) {
+            console.log('=== ФОРМА: ProgressManager доступен ===');
+            console.log('ProgressManager userId:', window.progressManager.userId);
+            console.log('ProgressManager serverUrl:', window.progressManager.serverUrl);
+            console.log('ProgressManager isTelegram:', window.progressManager.isTelegram);
+            
+            try {
+                console.log('=== ФОРМА: Начинаем сохранение данных ===');
+                const result = await window.progressManager.saveFormData(formData);
+                console.log('=== ФОРМА: Результат сохранения ===', result);
+                
+                if (result) {
+                    console.log('=== ФОРМА: Данные успешно сохранены ===');
+                    // Переходим на следующую страницу
+                    await window.progressManager.goToNextPage();
+                } else {
+                    console.error('=== ФОРМА: Ошибка сохранения данных ===');
+                    alert('Ошибка сохранения данных');
+                }
+            } catch (error) {
+                console.error('=== ФОРМА: Ошибка сохранения данных ===', error);
+                alert('Ошибка сохранения данных: ' + error.message);
+            }
+        } else {
+            console.error('=== ФОРМА: ProgressManager недоступен ===');
+            alert('Ошибка: ProgressManager недоступен');
+        }
+    } else {
+        console.log('=== ФОРМА: Валидация не прошла ===');
     }
 });
 

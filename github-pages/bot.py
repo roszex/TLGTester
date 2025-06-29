@@ -11,7 +11,7 @@ import asyncio
 load_dotenv(".env")
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-WEBAPP_URL = "https://roszex.github.io/EmelyanovTGBot-webapp/page_1/index.html"
+WEBAPP_URL = str(os.getenv("WEBAPP_URL"))
 
 if not BOT_TOKEN or not WEBAPP_URL:
     raise RuntimeError("BOT_TOKEN и WEBAPP_URL должны быть заданы в env.github")
@@ -21,10 +21,14 @@ dp = Dispatcher()
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
+    # Создаем URL с user_id
+    user_id = message.from_user.id if message.from_user else "unknown"
+    webapp_url = f"{WEBAPP_URL}?user_id={user_id}"
+    
     builder = ReplyKeyboardBuilder()
     builder.add(KeyboardButton(
         text="Открыть WebApp",
-        web_app=WebAppInfo(url=WEBAPP_URL)
+        web_app=WebAppInfo(url=webapp_url)
     ))
     await message.answer(
         "Нажми кнопку для запуска WebApp:",

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест отладки</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background-color: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        button {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #ff6666;
+        }
+        .log {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        input, textarea {
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тест отладки системы прогресса</h1>
+        
+        <div class="test-section">
+            <h2>1. Информация о пользователе</h2>
+            <p>User ID из URL: <span id="urlUserId">Не найден</span></p>
+            <p>User ID из localStorage: <span id="localUserId">Не найден</span></p>
+            <p>Telegram ID из localStorage: <span id="telegramId">Не найден</span></p>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. Тест API</h2>
+            <button onclick="testGetUserData()">Получить данные пользователя</button>
+            <button onclick="testSaveProgress()">Сохранить прогресс (страница 3)</button>
+            <button onclick="testSaveFormData()">Сохранить данные формы</button>
+            <div id="apiLog" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. Тест формы</h2>
+            <input type="text" id="age" placeholder="Возраст" value="25">
+            <input type="text" id="occupation" placeholder="Профессия" value="Тестировщик">
+            <input type="text" id="income" placeholder="Доход" value="60000 руб/мес">
+            <input type="text" id="motivation" placeholder="Мотивация" value="8 из 10">
+            <textarea id="teamwork" placeholder="Командная работа" rows="3">Готов к командной работе</textarea>
+            <br>
+            <button onclick="testSaveForm()">Сохранить форму</button>
+            <div id="formLog" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. Логи консоли</h2>
+            <button onclick="clearLogs()">Очистить логи</button>
+            <div id="consoleLog" class="log"></div>
+        </div>
+    </div>
+
+    <script src="progress.js"></script>
+    <script>
+        // Перехватываем console.log для отображения в интерфейсе
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        function addToLog(message, type = 'log') {
+            const logDiv = document.getElementById('consoleLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToLog(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToLog(args.join(' '), 'error');
+        };
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Получаем информацию о пользователе
+            const urlParams = new URLSearchParams(window.location.search);
+            const telegramId = urlParams.get('user_id');
+            const localUserId = localStorage.getItem('user_id');
+            const savedTelegramId = localStorage.getItem('telegram_user_id');
+            
+            document.getElementById('urlUserId').textContent = telegramId || 'Не найден';
+            document.getElementById('localUserId').textContent = localUserId || 'Не найден';
+            document.getElementById('telegramId').textContent = savedTelegramId || 'Не найден';
+            
+            console.log('Страница загружена');
+            console.log('URL параметры:', Object.fromEntries(urlParams));
+            console.log('localStorage:', {
+                user_id: localStorage.getItem('user_id'),
+                telegram_user_id: localStorage.getItem('telegram_user_id')
+            });
+        });
+
+        // Тест получения данных пользователя
+        async function testGetUserData() {
+            const logDiv = document.getElementById('apiLog');
+            logDiv.textContent = 'Получаем данные пользователя...\n';
+            
+            try {
+                const progressManager = new ProgressManager();
+                const userData = await progressManager.getUserData();
+                logDiv.textContent += `Успешно! Данные: ${JSON.stringify(userData, null, 2)}\n`;
+            } catch (error) {
+                logDiv.textContent += `Ошибка: ${error.message}\n`;
+            }
+        }
+
+        // Тест сохранения прогресса
+        async function testSaveProgress() {
+            const logDiv = document.getElementById('apiLog');
+            logDiv.textContent += 'Сохраняем прогресс...\n';
+            
+            try {
+                const progressManager = new ProgressManager();
+                await progressManager.saveProgress(3);
+                logDiv.textContent += 'Прогресс сохранен!\n';
+            } catch (error) {
+                logDiv.textContent += `Ошибка: ${error.message}\n`;
+            }
+        }
+
+        // Тест сохранения данных формы
+        async function testSaveFormData() {
+            const logDiv = document.getElementById('apiLog');
+            logDiv.textContent += 'Сохраняем данные формы...\n';
+            
+            try {
+                const progressManager = new ProgressManager();
+                const formData = {
+                    age: "25",
+                    occupation: "Тестировщик",
+                    income: "60000 руб/мес",
+                    motivation: "8 из 10",
+                    teamwork: "Готов к командной работе"
+                };
+                await progressManager.saveFormData(formData);
+                logDiv.textContent += 'Данные формы сохранены!\n';
+            } catch (error) {
+                logDiv.textContent += `Ошибка: ${error.message}\n`;
+            }
+        }
+
+        // Тест сохранения формы из полей
+        async function testSaveForm() {
+            const logDiv = document.getElementById('formLog');
+            logDiv.textContent = 'Сохраняем форму из полей...\n';
+            
+            try {
+                const progressManager = new ProgressManager();
+                const formData = {
+                    age: document.getElementById('age').value,
+                    occupation: document.getElementById('occupation').value,
+                    income: document.getElementById('income').value,
+                    motivation: document.getElementById('motivation').value,
+                    teamwork: document.getElementById('teamwork').value
+                };
+                await progressManager.saveFormData(formData);
+                logDiv.textContent += 'Форма сохранена!\n';
+            } catch (error) {
+                logDiv.textContent += `Ошибка: ${error.message}\n`;
+            }
+        }
+
+        // Очистка логов
+        function clearLogs() {
+            document.getElementById('consoleLog').textContent = '';
+            document.getElementById('apiLog').textContent = '';
+            document.getElementById('formLog').textContent = '';
+        }
+    </script>
+</body>
+</html> 

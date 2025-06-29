@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let baseImgUrl = 'https://25a9-147-45-179-150.ngrok-free.app/local_ngrok/webapp/';
     
-    nextBtn.addEventListener('click', function() {
+    nextBtn.addEventListener('click', async function() {
         console.log('Button clicked!');
         const container = document.querySelector('.container');
         
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.classList.add('wind-transition');
         
         // Ждём окончания анимации и переходим
-        setTimeout(() => {
+        setTimeout(async () => {
             // Используем более надежный метод для избежания ngrok предупреждений
             const currentUrl = window.location.href;
             const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));

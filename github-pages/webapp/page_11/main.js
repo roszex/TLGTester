@@ -3,7 +3,14 @@ function goToNextPage() {
     const currentUrl = window.location.href;
     const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
     const newUrl = baseUrl + '/../page_12/index.html';
-    window.location.href = newUrl;
+    // Используем ProgressManager если доступен
+            if (window.progressManager) {
+                console.log('Using ProgressManager for navigation');
+                await window.progressManager.goToNextPage();
+            } else {
+                // Fallback на старый метод
+                window.location.href = newUrl;
+            }
 }
 
 // Добавляем обработчик для мобильных устройств

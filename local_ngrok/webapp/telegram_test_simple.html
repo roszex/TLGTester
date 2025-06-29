@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Telegram WebApp</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .status {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success { background-color: #2d5a2d; }
+        .error { background-color: #5a2d2d; }
+        .info { background-color: #2d2d5a; }
+        button {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #cc3333;
+        }
+        input, select {
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тест Telegram WebApp</h1>
+        
+        <div id="status" class="status info">
+            Инициализация...
+        </div>
+        
+        <div class="status info">
+            <h3>Информация о среде:</h3>
+            <p>User Agent: <span id="userAgent"></span></p>
+            <p>URL: <span id="currentUrl"></span></p>
+            <p>Telegram WebApp: <span id="telegramStatus"></span></p>
+            <p>User ID: <span id="userId"></span></p>
+        </div>
+        
+        <div class="status info">
+            <h3>Тест ProgressManager:</h3>
+            <button onclick="testProgressManager()">Тест ProgressManager</button>
+            <button onclick="testSaveProgress()">Тест сохранения</button>
+            <button onclick="testLoadProgress()">Тест загрузки</button>
+        </div>
+        
+        <div class="status info">
+            <h3>Тест формы:</h3>
+            <input type="text" id="testInput" placeholder="Введите тестовые данные">
+            <button onclick="testFormSave()">Сохранить форму</button>
+        </div>
+        
+        <div id="results" class="status info">
+            <h3>Результаты тестов:</h3>
+            <pre id="resultsText"></pre>
+        </div>
+    </div>
+
+    <script src="progress.js"></script>
+    <script>
+        let testResults = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            console.log(logMessage);
+            testResults.push(logMessage);
+            updateResults();
+        }
+        
+        function updateResults() {
+            document.getElementById('resultsText').textContent = testResults.join('\n');
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Страница загружена');
+            
+            // Показываем информацию о среде
+            document.getElementById('userAgent').textContent = navigator.userAgent;
+            document.getElementById('currentUrl').textContent = window.location.href;
+            
+            // Проверяем Telegram WebApp
+            const isTelegram = !!(window.Telegram && window.Telegram.WebApp);
+            document.getElementById('telegramStatus').textContent = isTelegram ? 'Доступен' : 'Недоступен';
+            
+            if (isTelegram) {
+                log('Telegram WebApp обнаружен');
+                try {
+                    const tg = window.Telegram.WebApp;
+                    tg.ready();
+                    tg.expand();
+                    log('Telegram WebApp инициализирован');
+                    
+                    // Получаем user ID
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const userId = urlParams.get('user_id');
+                    document.getElementById('userId').textContent = userId || 'Не найден';
+                    
+                    if (userId) {
+                        log(`User ID из URL: ${userId}`);
+                    }
+                    
+                    // Пытаемся получить из initData
+                    if (tg.initData) {
+                        log('initData доступен');
+                        try {
+                            const data = new URLSearchParams(tg.initData);
+                            const userData = data.get('user');
+                            if (userData) {
+                                const user = JSON.parse(userData);
+                                log(`User из initData: ${JSON.stringify(user)}`);
+                            }
+                        } catch (e) {
+                            log(`Ошибка парсинга initData: ${e.message}`);
+                        }
+                    }
+                    
+                } catch (error) {
+                    log(`Ошибка инициализации Telegram WebApp: ${error.message}`, 'error');
+                }
+            } else {
+                log('Telegram WebApp не обнаружен');
+            }
+            
+            // Проверяем ProgressManager
+            setTimeout(() => {
+                if (window.progressManager) {
+                    log('ProgressManager успешно инициализирован');
+                    updateStatus('ProgressManager доступен', 'success');
+                } else {
+                    log('ProgressManager не инициализирован', 'error');
+                    updateStatus('ProgressManager недоступен', 'error');
+                }
+            }, 1000);
+        });
+        
+        function testProgressManager() {
+            log('=== Тест ProgressManager ===');
+            
+            if (window.progressManager) {
+                log('ProgressManager найден');
+                log(`User ID: ${window.progressManager.userId}`);
+                log(`Telegram WebApp: ${window.progressManager.isTelegramWebApp}`);
+                log(`Server URL: ${window.progressManager.serverUrl}`);
+            } else {
+                log('ProgressManager не найден', 'error');
+            }
+        }
+        
+        async function testSaveProgress() {
+            log('=== Тест сохранения прогресса ===');
+            
+            if (!window.progressManager) {
+                log('ProgressManager недоступен', 'error');
+                return;
+            }
+            
+            try {
+                const result = await window.progressManager.saveProgress(5);
+                log(`Результат сохранения: ${result}`);
+            } catch (error) {
+                log(`Ошибка сохранения: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testLoadProgress() {
+            log('=== Тест загрузки прогресса ===');
+            
+            if (!window.progressManager) {
+                log('ProgressManager недоступен', 'error');
+                return;
+            }
+            
+            try {
+                const result = await window.progressManager.loadProgress();
+                log(`Результат загрузки: ${JSON.stringify(result)}`);
+            } catch (error) {
+                log(`Ошибка загрузки: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testFormSave() {
+            log('=== Тест сохранения формы ===');
+            
+            if (!window.progressManager) {
+                log('ProgressManager недоступен', 'error');
+                return;
+            }
+            
+            const testData = document.getElementById('testInput').value || 'тестовые данные';
+            const formData = {
+                test_field: testData,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                const result = await window.progressManager.saveFormData(formData);
+                log(`Результат сохранения формы: ${result}`);
+            } catch (error) {
+                log(`Ошибка сохранения формы: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html> 

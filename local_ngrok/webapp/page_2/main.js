@@ -9,9 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('Button found, adding event listener');
     
-    let baseImgUrl = 'https://25a9-147-45-179-150.ngrok-free.app/local_ngrok/webapp/';
-    
-    listenBtn.addEventListener('click', function() {
+    listenBtn.addEventListener('click', async function() {
         console.log('Button clicked!');
         const container = document.querySelector('.container');
         
@@ -19,16 +17,19 @@ document.addEventListener('DOMContentLoaded', function() {
         container.classList.add('wind-transition');
         
         // Ждём окончания анимации и переходим
-        setTimeout(() => {
-            // Используем более надежный метод для избежания ngrok предупреждений
-            const currentUrl = window.location.href;
-            const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-            const newUrl = baseUrl + '/../page_3/index.html';
-            
-            console.log('Navigating to:', newUrl);
-            
-            // Простое перенаправление без создания элементов
-            window.location.href = newUrl;
+        setTimeout(async () => {
+            // Используем новую систему прогресса
+            if (window.progressManager) {
+                await window.progressManager.goToNextPage();
+            } else {
+                // Fallback на старый метод
+                const currentUrl = window.location.href;
+                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+                const newUrl = baseUrl + '/../page_3/index.html';
+                
+                console.log('Navigating to:', newUrl);
+                window.location.href = newUrl;
+            }
         }, 500);
     });
 });

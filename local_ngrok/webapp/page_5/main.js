@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.style.opacity = '0';
         container.style.transform = 'translateY(20px)';
         
-        setTimeout(() => {
+        setTimeout(async () => {
             container.style.transition = 'all 0.5s ease';
             container.style.opacity = '1';
             container.style.transform = 'translateY(0)';

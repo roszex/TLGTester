@@ -46,7 +46,7 @@ window.addEventListener('load', function() {
     setTimeout(forceLoadImages, 100); // Небольшая задержка для iPhone
 });
 
-document.getElementById('letsGoBtn').addEventListener('click', function() {
+document.getElementById('letsGoBtn').addEventListener('click', async function() {
     const container = document.querySelector('.container');
     
     // Добавляем анимацию "ветра"

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let baseImgUrl = "https://roszex.github.io/EmelyanovTGBot-webapp/";
     
-    listenBtn.addEventListener('click', function() {
+    listenBtn.addEventListener('click', async function() {
         console.log('Button clicked!');
         const container = document.querySelector('.container');
         
@@ -28,7 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Navigating to:', newUrl);
             
             // Простое перенаправление без создания элементов
-            window.location.href = newUrl;
+            // Используем ProgressManager если доступен
+            if (window.progressManager) {
+                console.log('Using ProgressManager for navigation');
+                await window.progressManager.goToNextPage();
+            } else {
+                // Fallback на старый метод
+                window.location.href = newUrl;
+            }
         }, 500);
     });
 });

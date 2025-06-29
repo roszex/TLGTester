@@ -7,14 +7,15 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from dotenv import load_dotenv
 import asyncio
 
-# Load environment variables from env.github
+# Load environment variables
 load_dotenv(".env")
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-WEBAPP_URL = "https://roszex.github.io/EmelyanovTGBot-webapp/"
+# Используем Railway сервер для WebApp
+WEBAPP_URL = "https://emelyanovtgbot-webapp-production.up.railway.app/"
 
-if not BOT_TOKEN or not WEBAPP_URL:
-    raise RuntimeError("BOT_TOKEN и WEBAPP_URL должны быть заданы в env.github")
+if not BOT_TOKEN:
+    raise RuntimeError("BOT_TOKEN должен быть задан в .env файле")
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()

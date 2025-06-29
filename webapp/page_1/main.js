@@ -1,5 +1,8 @@
-// Определяем базовый путь к картинкам
-let baseImgUrl = "https://roszex.github.io/EmelyanovTGBot-webapp/";
+// Подключаем API
+// <script src="../api.js"></script> должен быть в HTML
+
+// Определяем базовый путь к картинкам (теперь относительно текущего домена)
+let baseImgUrl = window.location.origin + "/";
 
 // Пример: document.getElementById('main-img').src = baseImgUrl + '1_page_photo.jpeg';
 
@@ -40,12 +43,21 @@ function preloadImages() {
     });
 }
 
-// Запускаем принудительную загрузку и предзагрузку
+// Инициализация при загрузке страницы
 window.addEventListener('load', function() {
+    // Инициализируем Telegram WebApp
+    initTelegramWebApp();
+    
+    // Загружаем изображения
     preloadImages();
-    setTimeout(forceLoadImages, 100); // Небольшая задержка для iPhone
+    setTimeout(forceLoadImages, 100);
+    
+    // Сохраняем прогресс на первой странице
+    const userId = getUserId();
+    api.saveProgress(userId, 1);
 });
 
+// Обработчик кнопки "Поехали"
 document.getElementById('letsGoBtn').addEventListener('click', function() {
     const container = document.querySelector('.container');
     
@@ -54,7 +66,11 @@ document.getElementById('letsGoBtn').addEventListener('click', function() {
     
     // Ждём окончания анимации и переходим
     setTimeout(() => {
-        // Используем более надежный метод для избежания ngrok предупреждений
+        // Сохраняем прогресс перед переходом
+        const userId = getUserId();
+        api.saveProgress(userId, 2);
+        
+        // Переходим на следующую страницу
         const currentUrl = window.location.href;
         const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
         const newUrl = baseUrl + '/../page_2/index.html';

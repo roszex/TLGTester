@@ -151,10 +151,15 @@ def get_progress(user_id):
     }
     return jsonify(response_data)
 
-# Static file serving
+# Static file serving for WebApp
 @app.route('/')
 def index():
-    return jsonify({"message": "EmelyanovTGBot API is running!", "status": "success"})
+    return send_from_directory('webapp', 'page_1/index.html')
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    """Раздает статические файлы из папки webapp"""
+    return send_from_directory('webapp', filename)
 
 @app.route('/health')
 def health():

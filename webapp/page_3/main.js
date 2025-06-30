@@ -71,13 +71,17 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
             console.log('Результат сохранения формы:', success);
             
             if (success) {
+                // Анимация перехода
+                const container = document.querySelector('.container');
+                container.classList.add('wind-transition');
                 // Переходим на следующую страницу
-                const currentUrl = window.location.href;
-                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-                const newUrl = baseUrl + '/../page_4/index.html?user_id=' + window.progressManager.userId;
-                
-                console.log('Navigating to:', newUrl);
-                window.location.href = newUrl;
+                setTimeout(() => {
+                    const currentUrl = window.location.href;
+                    const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+                    const newUrl = baseUrl + '/../page_4/index.html?user_id=' + window.progressManager.userId;
+                    console.log('Navigating to:', newUrl);
+                    window.location.href = newUrl;
+                }, 500);
             } else {
                 alert('Ошибка при сохранении данных. Попробуйте еще раз.');
             }

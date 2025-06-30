@@ -58,7 +58,7 @@ html {
     width: 100%;
     max-width: 320px;
     border-radius: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     opacity: 0;
     animation: photoLoad 0.4s ease-in 0.1s forwards;
     -webkit-user-drag: none;
@@ -85,31 +85,45 @@ html {
     }
 }
 
+.photo-caption {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ff4444;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.description {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.red-text {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #ff4444;
+    margin: 20px 0;
+    text-align: center;
+}
+
 .bio-text {
     color: #fff;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     text-align: left;
     width: 100%;
     max-width: 320px;
 }
 
 .bio-content {
-    font-size: 1rem;
+    font-size: 1.1rem;
     line-height: 1.6;
     text-align: justify;
 }
 
 .bio-content p {
     margin-bottom: 12px;
-}
-
-.red-text {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #ff4444;
-    text-align: center;
-    margin-bottom: 24px;
-    line-height: 1.4;
 }
 
 .lets-go {
@@ -142,7 +156,72 @@ html {
     background: #eee;
     color: #000;
     transform: scale(0.98);
-} 
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 15px;
+        border-radius: 15px;
+    }
+    
+    .title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .photo-caption {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .description {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .red-text {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .bio-content {
+        font-size: 16px;
+    }
+    
+    .bio-content p {
+        margin-bottom: 12px;
+    }
+    
+    .lets-go {
+        padding: 12px 25px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 18px;
+    }
+    
+    .photo-caption {
+        font-size: 16px;
+    }
+    
+    .description {
+        font-size: 16px;
+    }
+    
+    .red-text {
+        font-size: 16px;
+    }
+    
+    .bio-content {
+        font-size: 15px;
+    }
+}
+
 /* Анимация "ветра" при переходе */
 @keyframes windTransition {
     0% {

@@ -44,33 +44,6 @@ html {
     }
 }
 
-@keyframes windTransition {
-    0% {
-        transform: translateX(0) scale(1);
-        opacity: 1;
-    }
-    25% {
-        transform: translateX(-10px) scale(0.95);
-        opacity: 0.8;
-    }
-    50% {
-        transform: translateX(-30px) scale(0.9);
-        opacity: 0.6;
-    }
-    75% {
-        transform: translateX(-50px) scale(0.85);
-        opacity: 0.4;
-    }
-    100% {
-        transform: translateX(-100vw) scale(0.8);
-        opacity: 0;
-    }
-}
-
-.wind-transition {
-    animation: windTransition 0.5s ease-out forwards;
-}
-
 .title {
     font-size: 1.5rem;
     font-weight: bold;
@@ -78,13 +51,7 @@ html {
     margin-top: 24px;
     text-align: center;
     color: #fff;
-}
-
-.description {
-    font-size: 1.1rem;
-    color: #fff;
-    margin-bottom: 24px;
-    text-align: center;
+    line-height: 1.3;
 }
 
 .main-photo {
@@ -118,6 +85,29 @@ html {
     }
 }
 
+.photo-caption {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ff4444;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.description {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.red-text {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #ff4444;
+    margin: 20px 0;
+    text-align: center;
+}
+
 .bio-text {
     color: #fff;
     margin-bottom: 32px;
@@ -126,24 +116,14 @@ html {
     max-width: 320px;
 }
 
-.name {
-    font-size: 1.3rem;
-    font-weight: bold;
-    margin-bottom: 8px;
-    text-align: center;
-}
-
-.birth-date {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-    text-align: center;
-    color: #ccc;
-}
-
 .bio-content {
-    font-size: 1rem;
+    font-size: 1.1rem;
     line-height: 1.6;
     text-align: justify;
+}
+
+.bio-content p {
+    margin-bottom: 12px;
 }
 
 .lets-go {
@@ -176,4 +156,96 @@ html {
     background: #eee;
     color: #000;
     transform: scale(0.98);
-} 
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 15px;
+        border-radius: 15px;
+    }
+    
+    .title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .photo-caption {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .description {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .red-text {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .bio-content {
+        font-size: 16px;
+    }
+    
+    .bio-content p {
+        margin-bottom: 12px;
+    }
+    
+    .lets-go {
+        padding: 12px 25px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 18px;
+    }
+    
+    .photo-caption {
+        font-size: 16px;
+    }
+    
+    .description {
+        font-size: 16px;
+    }
+    
+    .red-text {
+        font-size: 16px;
+    }
+    
+    .bio-content {
+        font-size: 15px;
+    }
+}
+
+/* Анимация "ветра" при переходе */
+@keyframes windTransition {
+    0% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    25% {
+        transform: translateX(-10px) scale(0.95);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateX(-30px) scale(0.9);
+        opacity: 0.6;
+    }
+    75% {
+        transform: translateX(-50px) scale(0.85);
+        opacity: 0.4;
+    }
+    100% {
+        transform: translateX(-100vw) scale(0.8);
+        opacity: 0;
+    }
+}
+
+.wind-transition {
+    animation: windTransition 0.5s ease-out forwards;
+}

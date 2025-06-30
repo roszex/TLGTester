@@ -1,3 +1,11 @@
+#!/bin/bash
+
+# Унифицируем дизайн на всех страницах (кроме формы - страница 3)
+for page in {1,2,4,5,6,7,8,9,10,11,12,13,14,15}; do
+    echo "Унифицируем дизайн страницы $page"
+    
+    # Создаем унифицированный CSS
+    cat > webapp/page_${page}/style.css << 'EOF'
 body {
     margin: 0;
     padding: 0;
@@ -249,3 +257,7 @@ html {
 .wind-transition {
     animation: windTransition 0.5s ease-out forwards;
 }
+EOF
+done
+
+echo "Дизайн унифицирован на всех страницах!" 

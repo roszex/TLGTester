@@ -58,7 +58,7 @@ html {
     width: 100%;
     max-width: 320px;
     border-radius: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
     opacity: 0;
     animation: photoLoad 0.4s ease-in 0.1s forwards;
     -webkit-user-drag: none;
@@ -85,6 +85,21 @@ html {
     }
 }
 
+.photo-caption {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ff4444;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.description {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
 .red-text {
     font-size: 1.3rem;
     font-weight: bold;
@@ -102,7 +117,7 @@ html {
 }
 
 .bio-content {
-    font-size: 1rem;
+    font-size: 1.1rem;
     line-height: 1.6;
     text-align: justify;
 }
@@ -156,13 +171,26 @@ html {
         margin-bottom: 20px;
     }
     
+    .photo-caption {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .description {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
     .red-text {
         font-size: 18px;
         margin-bottom: 20px;
     }
     
+    .bio-content {
+        font-size: 16px;
+    }
+    
     .bio-content p {
-        font-size: 14px;
         margin-bottom: 12px;
     }
     
@@ -177,12 +205,20 @@ html {
         font-size: 18px;
     }
     
+    .photo-caption {
+        font-size: 16px;
+    }
+    
+    .description {
+        font-size: 16px;
+    }
+    
     .red-text {
         font-size: 16px;
     }
     
-    .bio-content p {
-        font-size: 13px;
+    .bio-content {
+        font-size: 15px;
     }
 }
 
@@ -212,4 +248,4 @@ html {
 
 .wind-transition {
     animation: windTransition 0.5s ease-out forwards;
-} 
+}

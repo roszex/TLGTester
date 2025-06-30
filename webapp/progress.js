@@ -3,14 +3,8 @@ class ProgressManager {
     constructor() {
         console.log('ProgressManager: Конструктор вызван');
         
-        // Получаем user ID из URL или из Telegram WebApp
-        const urlParams = new URLSearchParams(window.location.search);
-        this.userId = urlParams.get('user_id');
-        console.log('ProgressManager: user_id из URL:', this.userId);
-        console.log('ProgressManager: Полный URL:', window.location.href);
-        
-        // Если нет user_id в URL, пробуем получить из Telegram WebApp
-        if (!this.userId && window.Telegram && window.Telegram.WebApp) {
+        // Сначала пробуем получить из Telegram WebApp (приоритет)
+        if (window.Telegram && window.Telegram.WebApp) {
             const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
             console.log('ProgressManager: Telegram user:', tgUser);
             if (tgUser && tgUser.username) {
@@ -20,6 +14,14 @@ class ProgressManager {
                 this.userId = 'user_' + tgUser.id;
                 console.log('ProgressManager: user_id из Telegram ID:', this.userId);
             }
+        }
+        
+        // Если нет из Telegram, пробуем из URL
+        if (!this.userId) {
+            const urlParams = new URLSearchParams(window.location.search);
+            this.userId = urlParams.get('user_id');
+            console.log('ProgressManager: user_id из URL:', this.userId);
+            console.log('ProgressManager: Полный URL:', window.location.href);
         }
         
         // Если все еще нет user_id, создаем временный

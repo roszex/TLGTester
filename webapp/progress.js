@@ -17,6 +17,12 @@ class ProgressManager {
             }
         }
         
+        // Если все еще нет user_id, создаем временный
+        if (!this.userId) {
+            this.userId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            console.log('ProgressManager: Создан временный user ID:', this.userId);
+        }
+        
         // Определяем среду
         this.isTelegram = !!(window.Telegram && window.Telegram.WebApp);
         this.serverUrl = 'https://emelyanovtgbot-webapp-production.up.railway.app';

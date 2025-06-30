@@ -25,13 +25,8 @@ class ProgressManager {
         console.log('ProgressManager: Telegram =', this.isTelegram);
         console.log('ProgressManager: Server URL =', this.serverUrl);
         
-        // Восстанавливаем прогресс при загрузке
-        this.restoreProgress().then(restored => {
-            if (!restored) {
-                // Если прогресс не восстановлен, сохраняем текущую страницу
-                this.saveCurrentPage();
-            }
-        });
+        // Сохраняем текущую страницу при загрузке
+        this.saveCurrentPage();
     }
     
     getCurrentPage() {
@@ -112,8 +107,8 @@ class ProgressManager {
         
         console.log('ProgressManager: Переход на страницу', nextPage);
         
-        // Сохраняем прогресс
-        await this.saveCurrentPage();
+        // Сохраняем прогресс на следующую страницу
+        await this.savePage(nextPage);
         
         // Переходим на следующую страницу
         const currentUrl = window.location.href;
@@ -122,6 +117,36 @@ class ProgressManager {
         
         console.log('ProgressManager: Переходим на', newUrl);
         window.location.href = newUrl;
+    }
+    
+    async savePage(pageNumber) {
+        if (!this.userId) {
+            console.log('ProgressManager: Нет user ID, пропускаем сохранение страницы', pageNumber);
+            return;
+        }
+        
+        console.log('ProgressManager: Сохраняем страницу', pageNumber);
+        
+        try {
+            const response = await fetch(`${this.serverUrl}/api/save_progress`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_id: this.userId,
+                    current_page: pageNumber
+                })
+            });
+            
+            if (response.ok) {
+                console.log('ProgressManager: Страница', pageNumber, 'сохранена');
+            } else {
+                console.error('ProgressManager: Ошибка сохранения страницы', pageNumber, response.status);
+            }
+        } catch (error) {
+            console.error('ProgressManager: Ошибка сети при сохранении страницы', pageNumber, error);
+        }
     }
     
     async getSavedProgress() {

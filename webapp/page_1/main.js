@@ -52,7 +52,10 @@ window.addEventListener('load', function() {
     preloadImages();
     setTimeout(forceLoadImages, 100);
     
-    // Прогресс сохраняется автоматически в ProgressManager
+    // Принудительно сохраняем текущую страницу
+    if (window.progressManager) {
+        window.progressManager.savePage(1);
+    }
 });
 
 // Обработчик кнопки "Поехали"

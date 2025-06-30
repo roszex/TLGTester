@@ -2,6 +2,7 @@
 class ProgressManager {
     constructor() {
         console.log('ProgressManager: Конструктор вызван');
+        console.log('ProgressManager: Telegram WebApp доступен:', !!(window.Telegram && window.Telegram.WebApp));
         
         // Сначала пробуем получить из Telegram WebApp (приоритет)
         if (window.Telegram && window.Telegram.WebApp) {
@@ -22,6 +23,7 @@ class ProgressManager {
             this.userId = urlParams.get('user_id');
             console.log('ProgressManager: user_id из URL:', this.userId);
             console.log('ProgressManager: Полный URL:', window.location.href);
+            console.log('ProgressManager: Все параметры URL:', Array.from(urlParams.entries()));
         }
         
         // Если все еще нет user_id, создаем временный

@@ -74,7 +74,9 @@ document.getElementById('nextBtn').addEventListener('click', function() {
             // Fallback если ProgressManager не загружен
             const currentUrl = window.location.href;
             const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-            const newUrl = baseUrl + '/../page_5/index.html';
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            const newUrl = baseUrl + '/../page_5/index.html' + (userId ? `?user_id=${userId}` : '');
             
             console.log('Navigating to:', newUrl);
             window.location.href = newUrl;

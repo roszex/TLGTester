@@ -43,8 +43,8 @@ class ProgressManager {
         console.log('ProgressManager: Telegram =', this.isTelegram);
         console.log('ProgressManager: Server URL =', this.serverUrl);
         
-        // Сохраняем текущую страницу при загрузке
-        this.saveCurrentPage();
+        // Восстанавливаем прогресс при загрузке
+        this.restoreProgressOnLoad();
     }
     
     getCurrentPage() {
@@ -200,6 +200,33 @@ class ProgressManager {
             console.error('ProgressManager: Ошибка сети при получении прогресса', error);
             return null;
         }
+    }
+    
+    async restoreProgressOnLoad() {
+        console.log('ProgressManager: Восстанавливаем прогресс при загрузке...');
+        
+        // Если мы на первой странице, проверяем есть ли сохраненный прогресс
+        const currentPage = this.getCurrentPage();
+        if (currentPage === 1) {
+            const savedProgress = await this.getSavedProgress();
+            
+            if (savedProgress && savedProgress.current_page && savedProgress.current_page > 1) {
+                console.log(`ProgressManager: Найден сохраненный прогресс - страница ${savedProgress.current_page}`);
+                
+                // Переходим на сохраненную страницу
+                const currentUrl = window.location.href;
+                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+                const newUrl = baseUrl + `/../page_${savedProgress.current_page}/index.html?user_id=${this.userId}`;
+                
+                console.log('ProgressManager: Переходим на сохраненную страницу', newUrl);
+                window.location.href = newUrl;
+                return;
+            }
+        }
+        
+        // Если мы не на первой странице или нет сохраненного прогресса, просто сохраняем текущую
+        console.log('ProgressManager: Сохраняем текущую страницу', currentPage);
+        this.saveCurrentPage();
     }
     
     async restoreProgress() {

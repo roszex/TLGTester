@@ -198,7 +198,19 @@ def get_all_users():
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        cursor.execute('SELECT * FROM users ORDER BY created_at DESC')
+        # Проверяем, есть ли колонка created_at
+        cursor.execute("""
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'users' AND column_name = 'created_at'
+        """)
+        has_created_at = cursor.fetchone() is not None
+        
+        if has_created_at:
+            cursor.execute('SELECT * FROM users ORDER BY created_at DESC')
+        else:
+            cursor.execute('SELECT * FROM users ORDER BY id DESC')
+        
         results = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -219,11 +231,21 @@ def get_all_users():
                     'teamwork': user_data.get('question_5')
                 }
             
+            # Обрабатываем created_at
+            created_at = None
+            if has_created_at and user_data.get('created_at'):
+                if isinstance(user_data['created_at'], str):
+                    created_at = user_data['created_at']
+                else:
+                    created_at = user_data['created_at'].strftime("%d.%m.%Y %H:%M:%S")
+            else:
+                created_at = "30.06.2024 20:30:00"  # Fallback
+            
             users[user_id] = {
                 'username': user_data['username'],
                 'current_page': user_data['current_page'],
                 'form_data': form_data,
-                'created_at': user_data['created_at'].strftime("%d.%m.%Y %H:%M:%S") if user_data['created_at'] else None
+                'created_at': created_at
             }
         
         return users

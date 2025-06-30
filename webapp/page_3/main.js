@@ -2,13 +2,38 @@
 // <script src="../progress.js"></script> должен быть в HTML
 
 // Инициализация при загрузке страницы
-window.addEventListener('load', function() {
+window.addEventListener('load', async function() {
     // Инициализируем Telegram WebApp
     initTelegramWebApp();
     
     // Устанавливаем текущую дату
     const currentDate = new Date().toLocaleDateString('ru-RU');
     document.getElementById('currentDate').textContent = currentDate;
+    
+    // Восстанавливаем данные формы если есть
+    if (window.progressManager) {
+        const savedProgress = await window.progressManager.getSavedProgress();
+        if (savedProgress && savedProgress.form_data) {
+            console.log('Восстанавливаем данные формы:', savedProgress.form_data);
+            
+            // Заполняем поля формы
+            if (savedProgress.form_data.age) {
+                document.getElementById('age').value = savedProgress.form_data.age;
+            }
+            if (savedProgress.form_data.occupation) {
+                document.getElementById('occupation').value = savedProgress.form_data.occupation;
+            }
+            if (savedProgress.form_data.income) {
+                document.getElementById('income').value = savedProgress.form_data.income;
+            }
+            if (savedProgress.form_data.motivation) {
+                document.getElementById('motivation').value = savedProgress.form_data.motivation;
+            }
+            if (savedProgress.form_data.teamwork) {
+                document.getElementById('teamwork').value = savedProgress.form_data.teamwork;
+            }
+        }
+    }
     
     // Прогресс сохраняется автоматически в ProgressManager
 });

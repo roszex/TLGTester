@@ -25,8 +25,13 @@ class ProgressManager {
         console.log('ProgressManager: Telegram =', this.isTelegram);
         console.log('ProgressManager: Server URL =', this.serverUrl);
         
-        // Сохраняем текущую страницу
-        this.saveCurrentPage();
+        // Восстанавливаем прогресс при загрузке
+        this.restoreProgress().then(restored => {
+            if (!restored) {
+                // Если прогресс не восстановлен, сохраняем текущую страницу
+                this.saveCurrentPage();
+            }
+        });
     }
     
     getCurrentPage() {
@@ -75,14 +80,13 @@ class ProgressManager {
         console.log('ProgressManager: Сохраняем форму', formData);
         
         try {
-            const response = await fetch(`${this.serverUrl}/api/save_progress`, {
+            const response = await fetch(`${this.serverUrl}/api/save_form_data`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     user_id: this.userId,
-                    current_page: this.getCurrentPage(),
                     form_data: formData
                 })
             });
@@ -92,6 +96,8 @@ class ProgressManager {
                 return true;
             } else {
                 console.error('ProgressManager: Ошибка сохранения формы', response.status);
+                const errorText = await response.text();
+                console.error('ProgressManager: Ошибка детали:', errorText);
                 return false;
             }
         } catch (error) {
@@ -116,6 +122,54 @@ class ProgressManager {
         
         console.log('ProgressManager: Переходим на', newUrl);
         window.location.href = newUrl;
+    }
+    
+    async getSavedProgress() {
+        if (!this.userId) {
+            console.log('ProgressManager: Нет user ID, пропускаем получение прогресса');
+            return null;
+        }
+        
+        try {
+            const response = await fetch(`${this.serverUrl}/api/get_progress/${encodeURIComponent(this.userId)}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('ProgressManager: Получен прогресс', data);
+                return data;
+            } else {
+                console.error('ProgressManager: Ошибка получения прогресса', response.status);
+                return null;
+            }
+        } catch (error) {
+            console.error('ProgressManager: Ошибка сети при получении прогресса', error);
+            return null;
+        }
+    }
+    
+    async restoreProgress() {
+        const savedProgress = await this.getSavedProgress();
+        
+        if (savedProgress && savedProgress.current_page) {
+            const currentPage = this.getCurrentPage();
+            const savedPage = savedProgress.current_page;
+            
+            // Если мы не на той странице, куда нужно вернуться
+            if (currentPage !== savedPage) {
+                console.log(`ProgressManager: Восстанавливаем прогресс с страницы ${savedPage}`);
+                
+                // Переходим на сохраненную страницу
+                const currentUrl = window.location.href;
+                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+                const newUrl = baseUrl + `/../page_${savedPage}/index.html?user_id=${this.userId}`;
+                
+                console.log('ProgressManager: Переходим на сохраненную страницу', newUrl);
+                window.location.href = newUrl;
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
 

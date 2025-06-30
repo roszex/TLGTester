@@ -32,7 +32,7 @@ async def start(message: types.Message):
     else:
         print(f"Bot: message.from_user is None")
     
-    # Формируем user_id
+    # Формируем user_id - ВСЕГДА используем username или ID
     user_id = None
     if message.from_user and message.from_user.username:
         user_id = '@' + message.from_user.username
@@ -47,13 +47,21 @@ async def start(message: types.Message):
     webapp_url = f"{WEBAPP_URL}?user_id={user_id}"
     print(f"Bot: WebApp URL = {webapp_url}")
     
+    # Формируем приветствие
+    if message.from_user and message.from_user.username:
+        greeting = f"Привет, @{message.from_user.username}! Я Emelyanov и это моя история:"
+    elif message.from_user and message.from_user.first_name:
+        greeting = f"Привет, {message.from_user.first_name}! Я Emelyanov и это моя история:"
+    else:
+        greeting = "Привет! Я Emelyanov и это моя история:"
+    
     builder = ReplyKeyboardBuilder()
     builder.add(KeyboardButton(
-        text="Открыть WebApp",
+        text="Читать историю",
         web_app=WebAppInfo(url=webapp_url)
     ))
     await message.answer(
-        "Нажми кнопку для запуска WebApp:",
+        greeting,
         reply_markup=builder.as_markup(resize_keyboard=True),
         parse_mode=ParseMode.HTML
     )

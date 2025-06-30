@@ -86,4 +86,12 @@ function goToNextPage() {
             window.location.href = newUrl;
         }
     }, 500);
-} 
+}
+
+// Обработчик кнопки
+document.addEventListener('DOMContentLoaded', function() {
+    const nextBtn = document.querySelector('.lets-go');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', goToNextPage);
+    }
+}); 

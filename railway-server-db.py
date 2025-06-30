@@ -19,6 +19,10 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
+# Настройка кодировки для русского языка
+app.config['JSON_AS_ASCII'] = False
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+
 def get_db_connection():
     """Получает соединение с базой данных PostgreSQL"""
     try:
@@ -46,7 +50,7 @@ def init_database():
     try:
         cursor = conn.cursor()
         
-        # Создаем таблицу пользователей
+        # Создаем таблицу пользователей без created_at
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -56,8 +60,7 @@ def init_database():
                 question_3 TEXT,
                 question_4 TEXT,
                 question_5 TEXT,
-                current_page INTEGER DEFAULT 1,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                current_page INTEGER DEFAULT 1
             )
         ''')
         
@@ -88,8 +91,8 @@ def get_or_create_user(user_id):
         if not user:
             # Создаем нового пользователя
             cursor.execute('''
-                INSERT INTO users (username, current_page, created_at)
-                VALUES (%s, 1, CURRENT_TIMESTAMP)
+                INSERT INTO users (username, current_page)
+                VALUES (%s, 1)
                 RETURNING *
             ''', (user_id,))
             user = cursor.fetchone()
@@ -180,8 +183,7 @@ def get_user_data(user_id):
                 'user_id': user_data['username'],
                 'username': user_data['username'],
                 'current_page': user_data['current_page'],
-                'form_data': form_data,
-                'created_at': user_data['created_at'].strftime("%d.%m.%Y %H:%M:%S") if user_data['created_at'] else None
+                'form_data': form_data
             }
         
         return None
@@ -198,19 +200,8 @@ def get_all_users():
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        # Проверяем, есть ли колонка created_at
-        cursor.execute("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name = 'users' AND column_name = 'created_at'
-        """)
-        has_created_at = cursor.fetchone() is not None
-        
-        if has_created_at:
-            cursor.execute('SELECT * FROM users ORDER BY created_at DESC')
-        else:
-            cursor.execute('SELECT * FROM users ORDER BY id DESC')
-        
+        # Получаем всех пользователей, сортируем по ID
+        cursor.execute('SELECT * FROM users ORDER BY id DESC')
         results = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -231,21 +222,10 @@ def get_all_users():
                     'teamwork': user_data.get('question_5')
                 }
             
-            # Обрабатываем created_at
-            created_at = None
-            if has_created_at and user_data.get('created_at'):
-                if isinstance(user_data['created_at'], str):
-                    created_at = user_data['created_at']
-                else:
-                    created_at = user_data['created_at'].strftime("%d.%m.%Y %H:%M:%S")
-            else:
-                created_at = "30.06.2024 20:30:00"  # Fallback
-            
             users[user_id] = {
                 'username': user_data['username'],
                 'current_page': user_data['current_page'],
-                'form_data': form_data,
-                'created_at': created_at
+                'form_data': form_data
             }
         
         return users

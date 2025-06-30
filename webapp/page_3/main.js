@@ -35,7 +35,10 @@ window.addEventListener('load', async function() {
         }
     }
     
-    // Прогресс сохраняется автоматически в ProgressManager
+    // Принудительно сохраняем текущую страницу (3)
+    if (window.progressManager) {
+        window.progressManager.savePage(3);
+    }
 });
 
 // Обработчик отправки формы
@@ -58,20 +61,29 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
     };
     
     console.log('Отправляем данные формы:', formData);
+    console.log('ProgressManager доступен:', !!window.progressManager);
+    console.log('User ID:', window.progressManager ? window.progressManager.userId : 'неизвестен');
     
     // Сохраняем данные через ProgressManager
     if (window.progressManager) {
-        const success = await window.progressManager.saveFormData(formData);
-        if (success) {
-            // Переходим на следующую страницу
-            const currentUrl = window.location.href;
-            const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-            const newUrl = baseUrl + '/../page_4/index.html';
+        try {
+            const success = await window.progressManager.saveFormData(formData);
+            console.log('Результат сохранения формы:', success);
             
-            console.log('Navigating to:', newUrl);
-            window.location.href = newUrl;
-        } else {
-            alert('Ошибка при сохранении данных. Попробуйте еще раз.');
+            if (success) {
+                // Переходим на следующую страницу
+                const currentUrl = window.location.href;
+                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+                const newUrl = baseUrl + '/../page_4/index.html?user_id=' + window.progressManager.userId;
+                
+                console.log('Navigating to:', newUrl);
+                window.location.href = newUrl;
+            } else {
+                alert('Ошибка при сохранении данных. Попробуйте еще раз.');
+            }
+        } catch (error) {
+            console.error('Ошибка при сохранении формы:', error);
+            alert('Ошибка при сохранении данных: ' + error.message);
         }
     } else {
         alert('Ошибка: ProgressManager не загружен');

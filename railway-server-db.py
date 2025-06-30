@@ -285,26 +285,67 @@ def update_user_data_api(user_id):
 
 @app.route('/api/save_progress', methods=['POST'])
 def save_progress_api():
-    """Сохраняет прогресс"""
-    data = request.get_json()
-    user_id = data.get('user_id')
-    
-    if not user_id:
-        return jsonify({'error': 'user_id is required'}), 400
-    
-    # Получаем или создаем пользователя
-    user = get_or_create_user(user_id)
-    if not user:
-        return jsonify({'error': 'Failed to create user'}), 500
-    
-    # Обновляем прогресс
-    current_page = data.get('current_page', 1)
-    form_data = data.get('form_data')
-    
-    if update_user_progress(user_id, current_page, form_data):
-        return jsonify({'status': 'success', 'message': 'Progress saved'})
-    else:
-        return jsonify({'error': 'Failed to save progress'}), 500
+    """Сохраняет прогресс пользователя"""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        current_page = data.get('current_page', 1)
+        form_data = data.get('form_data')
+        
+        if not user_id:
+            return jsonify({'error': 'user_id is required'}), 400
+        
+        # Получаем или создаем пользователя
+        user = get_or_create_user(user_id)
+        if not user:
+            return jsonify({'error': 'Failed to create user'}), 500
+        
+        # Обновляем прогресс
+        success = update_user_progress(user_id, current_page, form_data)
+        
+        if success:
+            return jsonify({'message': 'Progress saved successfully', 'user_id': user_id, 'current_page': current_page})
+        else:
+            return jsonify({'error': 'Failed to save progress'}), 500
+            
+    except Exception as e:
+        logger.error(f"Error in save_progress_api: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@app.route('/api/save_form_data', methods=['POST'])
+def save_form_data_api():
+    """Сохраняет данные формы пользователя"""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        form_data = data.get('form_data')
+        
+        if not user_id:
+            return jsonify({'error': 'user_id is required'}), 400
+        
+        if not form_data:
+            return jsonify({'error': 'form_data is required'}), 400
+        
+        # Получаем или создаем пользователя
+        user = get_or_create_user(user_id)
+        if not user:
+            return jsonify({'error': 'Failed to create user'}), 500
+        
+        # Обновляем данные формы (сохраняем текущую страницу как 4)
+        success = update_user_progress(user_id, 4, form_data)
+        
+        if success:
+            return jsonify({
+                'message': 'Form data saved successfully', 
+                'user_id': user_id,
+                'form_data': form_data
+            })
+        else:
+            return jsonify({'error': 'Failed to save form data'}), 500
+            
+    except Exception as e:
+        logger.error(f"Error in save_form_data_api: {e}")
+        return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/api/get_progress/<user_id>', methods=['GET'])
 def get_progress_api(user_id):

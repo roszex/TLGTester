@@ -27,6 +27,29 @@ const api = {
         }
     },
 
+    // Save form data
+    saveFormData: async (userId, formData) => {
+        console.log('Saving form data for user:', userId, 'data:', formData);
+        try {
+            const response = await fetch(`${RAILWAY_API_URL}/api/save_form_data`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    form_data: formData
+                })
+            });
+            const result = await response.json();
+            console.log('Save form data result:', result);
+            return result;
+        } catch (error) {
+            console.error('Error saving form data:', error);
+            throw error; // Пробрасываем ошибку для обработки в вызывающем коде
+        }
+    },
+
     // Get progress
     getProgress: async (userId) => {
         console.log('Getting progress for user:', userId);

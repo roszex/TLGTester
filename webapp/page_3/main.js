@@ -59,7 +59,7 @@ function validateForm() {
 }
 
 // Функция для сбора данных формы
-function collectFormData() {
+async function collectFormData() {
     const formData = {
         age: document.getElementById('age').value,
         occupation: document.getElementById('occupation').value.trim(),
@@ -73,28 +73,73 @@ function collectFormData() {
     // Сохраняем данные в localStorage для возможного использования
     localStorage.setItem('formData', JSON.stringify(formData));
     
-    // Здесь можно добавить отправку данных на сервер
-    console.log('Собранные данные:', formData);
+    // Отправляем данные на Railway сервер
+    try {
+        const userId = getUserId();
+        console.log('Отправляем данные формы на сервер для пользователя:', userId);
+        
+        // Сохраняем данные формы через API
+        await api.saveFormData(userId, formData);
+        console.log('✅ Данные формы успешно отправлены на сервер');
+        
+        // Показываем уведомление пользователю
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.showAlert('✅ Форма успешно отправлена!');
+        }
+        
+    } catch (error) {
+        console.error('❌ Ошибка при отправке данных формы:', error);
+        
+        // Показываем ошибку пользователю
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.showAlert('❌ Ошибка при отправке формы. Попробуйте еще раз.');
+        }
+    }
     
+    console.log('Собранные данные:', formData);
     return formData;
 }
 
 // Обработчик клика по кнопке
-document.getElementById('submitBtn').addEventListener('click', function() {
+document.getElementById('submitBtn').addEventListener('click', async function() {
     // Скрываем клавиатуру только при нажатии на кнопку отправки
     hideKeyboard();
     
     if (validateForm()) {
-        // Собираем данные формы
-        const formData = collectFormData();
+        // Показываем индикатор загрузки
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Отправляем...';
+        submitBtn.disabled = true;
         
-        // Переходим на следующую страницу
-        const currentUrl = window.location.href;
-        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-        const newUrl = baseUrl + '/../page_4/index.html';
-        
-        console.log('Navigating to:', newUrl);
-        window.location.href = newUrl;
+        try {
+            // Собираем и отправляем данные формы
+            const formData = await collectFormData();
+            
+            // Сохраняем прогресс
+            const userId = getUserId();
+            await api.saveProgress(userId, 4);
+            
+            // Переходим на следующую страницу
+            const currentUrl = window.location.href;
+            const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+            const newUrl = baseUrl + '/../page_4/index.html';
+            
+            console.log('Navigating to:', newUrl);
+            window.location.href = newUrl;
+            
+        } catch (error) {
+            console.error('Ошибка при обработке формы:', error);
+            
+            // Возвращаем кнопку в исходное состояние
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            
+            // Показываем ошибку пользователю
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.showAlert('❌ Ошибка при отправке формы. Попробуйте еще раз.');
+            }
+        }
     }
 });
 
@@ -113,6 +158,15 @@ window.addEventListener('orientationchange', function() {
 });
 
 // Запускаем при загрузке страницы
-window.addEventListener('load', setCurrentDate);
+window.addEventListener('load', function() {
+    setCurrentDate();
+    
+    // Инициализируем Telegram WebApp
+    initTelegramWebApp();
+    
+    // Сохраняем прогресс на странице формы
+    const userId = getUserId();
+    api.saveProgress(userId, 3);
+});
 
 let baseImgUrl = "https://roszex.github.io/EmelyanovTGBot-webapp/";

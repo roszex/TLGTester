@@ -36,7 +36,7 @@ function forceLoadImages() {
 
 // Предзагрузка изображений для быстрой загрузки
 function preloadImages() {
-    const images = ['../15_page_photo.jpeg'];
+    const images = ['../16_page_photo.jpeg'];
     images.forEach(src => {
         const img = new Image();
         img.src = src;
@@ -54,7 +54,7 @@ window.addEventListener('load', function() {
     
     // Принудительно сохраняем текущую страницу
     if (window.progressManager) {
-        window.progressManager.savePage(14);
+        window.progressManager.savePage(15);
     }
 });
 
@@ -76,7 +76,7 @@ function goToNextPage() {
             const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
-            const newUrl = baseUrl + '/../page_15/index.html' + (userId ? `?user_id=${userId}` : '');
+            const newUrl = baseUrl + '/../page_16/index.html' + (userId ? `?user_id=${userId}` : '');
             
             console.log('Navigating to:', newUrl);
             window.location.href = newUrl;

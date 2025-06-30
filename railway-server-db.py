@@ -68,30 +68,18 @@ def init_database():
     try:
         cursor = conn.cursor()
         
-        # Создаем таблицу пользователей
+        # Создаем таблицу пользователей с новой структурой
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
-                user_id VARCHAR(50) UNIQUE NOT NULL,
                 username VARCHAR(100),
+                question_1 TEXT,
+                question_2 TEXT,
+                question_3 TEXT,
+                question_4 TEXT,
+                question_5 TEXT,
                 current_page INTEGER DEFAULT 1,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        
-        # Создаем таблицу данных форм
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS form_data (
-                id SERIAL PRIMARY KEY,
-                user_id VARCHAR(50) REFERENCES users(user_id) ON DELETE CASCADE,
-                age VARCHAR(10),
-                occupation TEXT,
-                income VARCHAR(100),
-                motivation VARCHAR(100),
-                teamwork TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
         
@@ -114,14 +102,14 @@ def get_or_create_user(user_id):
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         # Проверяем, существует ли пользователь
-        cursor.execute('SELECT * FROM users WHERE user_id = %s', (user_id,))
+        cursor.execute('SELECT * FROM users WHERE username = %s', (user_id,))
         user = cursor.fetchone()
         
         if not user:
             # Создаем нового пользователя
             cursor.execute('''
-                INSERT INTO users (user_id, current_page, created_at, updated_at)
-                VALUES (%s, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                INSERT INTO users (username, current_page, created_at)
+                VALUES (%s, 1, CURRENT_TIMESTAMP)
                 RETURNING *
             ''', (user_id,))
             user = cursor.fetchone()
@@ -147,26 +135,23 @@ def update_user_progress(user_id, current_page, form_data=None):
         # Обновляем текущую страницу
         cursor.execute('''
             UPDATE users 
-            SET current_page = %s, updated_at = CURRENT_TIMESTAMP
-            WHERE user_id = %s
+            SET current_page = %s
+            WHERE username = %s
         ''', (current_page, user_id))
         
         # Если есть данные формы, сохраняем их
         if form_data:
-            # Удаляем старые данные формы
-            cursor.execute('DELETE FROM form_data WHERE user_id = %s', (user_id,))
-            
-            # Вставляем новые данные
             cursor.execute('''
-                INSERT INTO form_data (user_id, age, occupation, income, motivation, teamwork)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                UPDATE users 
+                SET question_1 = %s, question_2 = %s, question_3 = %s, question_4 = %s, question_5 = %s
+                WHERE username = %s
             ''', (
-                user_id,
                 form_data.get('age'),
                 form_data.get('occupation'),
                 form_data.get('income'),
                 form_data.get('motivation'),
-                form_data.get('teamwork')
+                form_data.get('teamwork'),
+                user_id
             ))
         
         conn.commit()
@@ -188,13 +173,7 @@ def get_user_data(user_id):
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         # Получаем данные пользователя
-        cursor.execute('''
-            SELECT u.*, f.age, f.occupation, f.income, f.motivation, f.teamwork
-            FROM users u
-            LEFT JOIN form_data f ON u.user_id = f.user_id
-            WHERE u.user_id = %s
-        ''', (user_id,))
-        
+        cursor.execute('SELECT * FROM users WHERE username = %s', (user_id,))
         result = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -202,19 +181,20 @@ def get_user_data(user_id):
         if result:
             # Преобразуем в словарь
             user_data = dict(result)
-            # Формируем form_data
+            
+            # Формируем form_data в старом формате для совместимости
             form_data = None
-            if user_data.get('age') or user_data.get('occupation'):
+            if user_data.get('question_1') or user_data.get('question_2'):
                 form_data = {
-                    'age': user_data.get('age'),
-                    'occupation': user_data.get('occupation'),
-                    'income': user_data.get('income'),
-                    'motivation': user_data.get('motivation'),
-                    'teamwork': user_data.get('teamwork')
+                    'age': user_data.get('question_1'),
+                    'occupation': user_data.get('question_2'),
+                    'income': user_data.get('question_3'),
+                    'motivation': user_data.get('question_4'),
+                    'teamwork': user_data.get('question_5')
                 }
             
             return {
-                'user_id': user_data['user_id'],
+                'user_id': user_data['username'],
                 'username': user_data['username'],
                 'current_page': user_data['current_page'],
                 'form_data': form_data,
@@ -235,13 +215,7 @@ def get_all_users():
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        cursor.execute('''
-            SELECT u.*, f.age, f.occupation, f.income, f.motivation, f.teamwork
-            FROM users u
-            LEFT JOIN form_data f ON u.user_id = f.user_id
-            ORDER BY u.created_at DESC
-        ''')
-        
+        cursor.execute('SELECT * FROM users ORDER BY created_at DESC')
         results = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -249,17 +223,17 @@ def get_all_users():
         users = {}
         for row in results:
             user_data = dict(row)
-            user_id = user_data['user_id']
+            user_id = user_data['username']
             
-            # Формируем form_data
+            # Формируем form_data в старом формате для совместимости
             form_data = None
-            if user_data.get('age') or user_data.get('occupation'):
+            if user_data.get('question_1') or user_data.get('question_2'):
                 form_data = {
-                    'age': user_data.get('age'),
-                    'occupation': user_data.get('occupation'),
-                    'income': user_data.get('income'),
-                    'motivation': user_data.get('motivation'),
-                    'teamwork': user_data.get('teamwork')
+                    'age': user_data.get('question_1'),
+                    'occupation': user_data.get('question_2'),
+                    'income': user_data.get('question_3'),
+                    'motivation': user_data.get('question_4'),
+                    'teamwork': user_data.get('question_5')
                 }
             
             users[user_id] = {
@@ -299,19 +273,6 @@ def update_user_data_api(user_id):
     user = get_or_create_user(user_id)
     if not user:
         return jsonify({'error': 'Failed to create user'}), 500
-    
-    # Обновляем username если есть
-    if 'username' in data and data['username']:
-        conn = get_db_connection()
-        if conn:
-            try:
-                cursor = conn.cursor()
-                cursor.execute('UPDATE users SET username = %s WHERE user_id = %s', (data['username'], user_id))
-                conn.commit()
-                cursor.close()
-                conn.close()
-            except Exception as e:
-                logger.error(f"Error updating username: {e}")
     
     # Обновляем прогресс
     current_page = data.get('current_page', 1)

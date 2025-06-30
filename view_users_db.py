@@ -44,13 +44,7 @@ def view_users():
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        cursor.execute('''
-            SELECT u.*, f.age, f.occupation, f.income, f.motivation, f.teamwork
-            FROM users u
-            LEFT JOIN form_data f ON u.user_id = f.user_id
-            ORDER BY u.created_at DESC
-        ''')
-        
+        cursor.execute('SELECT * FROM users ORDER BY created_at DESC')
         results = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -64,7 +58,6 @@ def view_users():
         
         for row in results:
             user_data = dict(row)
-            print(f"ID: {user_data['user_id']}")
             print(f"Username: {user_data.get('username', 'Не указан')}")
             print(f"Текущая страница: {user_data.get('current_page', 1)}")
             
@@ -73,16 +66,16 @@ def view_users():
             if created_at:
                 print(f"Создан: {created_at.strftime('%d.%m.%Y %H:%M:%S')}")
             
-            # Показываем данные формы
-            if user_data.get('age') or user_data.get('occupation'):
-                print("Данные формы:")
-                print(f"  Возраст: {user_data.get('age', 'Не указан')}")
-                print(f"  Род деятельности: {user_data.get('occupation', 'Не указан')}")
-                print(f"  Доход: {user_data.get('income', 'Не указан')}")
-                print(f"  Мотивация: {user_data.get('motivation', 'Не указан')}")
-                print(f"  Работа в команде: {user_data.get('teamwork', 'Не указан')}")
+            # Показываем ответы на вопросы
+            if user_data.get('question_1') or user_data.get('question_2'):
+                print("Ответы на вопросы:")
+                print(f"  Вопрос 1 (Возраст): {user_data.get('question_1', 'Не указан')}")
+                print(f"  Вопрос 2 (Род деятельности): {user_data.get('question_2', 'Не указан')}")
+                print(f"  Вопрос 3 (Доход): {user_data.get('question_3', 'Не указан')}")
+                print(f"  Вопрос 4 (Мотивация): {user_data.get('question_4', 'Не указан')}")
+                print(f"  Вопрос 5 (Работа в команде): {user_data.get('question_5', 'Не указан')}")
             else:
-                print("Данные формы: Не заполнены")
+                print("Ответы на вопросы: Не заполнены")
             
             print("-" * 80)
             
@@ -99,13 +92,7 @@ def view_user_by_username(username):
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        cursor.execute('''
-            SELECT u.*, f.age, f.occupation, f.income, f.motivation, f.teamwork
-            FROM users u
-            LEFT JOIN form_data f ON u.user_id = f.user_id
-            WHERE u.username = %s
-        ''', (username,))
-        
+        cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
         result = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -114,7 +101,6 @@ def view_user_by_username(username):
             user_data = dict(result)
             print(f"Найден пользователь: {username}")
             print("=" * 50)
-            print(f"ID: {user_data['user_id']}")
             print(f"Текущая страница: {user_data.get('current_page', 1)}")
             
             # Показываем время создания
@@ -122,16 +108,16 @@ def view_user_by_username(username):
             if created_at:
                 print(f"Создан: {created_at.strftime('%d.%m.%Y %H:%M:%S')}")
             
-            # Показываем данные формы
-            if user_data.get('age') or user_data.get('occupation'):
-                print("Данные формы:")
-                print(f"  Возраст: {user_data.get('age', 'Не указан')}")
-                print(f"  Род деятельности: {user_data.get('occupation', 'Не указан')}")
-                print(f"  Доход: {user_data.get('income', 'Не указан')}")
-                print(f"  Мотивация: {user_data.get('motivation', 'Не указан')}")
-                print(f"  Работа в команде: {user_data.get('teamwork', 'Не указан')}")
+            # Показываем ответы на вопросы
+            if user_data.get('question_1') or user_data.get('question_2'):
+                print("Ответы на вопросы:")
+                print(f"  Вопрос 1 (Возраст): {user_data.get('question_1', 'Не указан')}")
+                print(f"  Вопрос 2 (Род деятельности): {user_data.get('question_2', 'Не указан')}")
+                print(f"  Вопрос 3 (Доход): {user_data.get('question_3', 'Не указан')}")
+                print(f"  Вопрос 4 (Мотивация): {user_data.get('question_4', 'Не указан')}")
+                print(f"  Вопрос 5 (Работа в команде): {user_data.get('question_5', 'Не указан')}")
             else:
-                print("Данные формы: Не заполнены")
+                print("Ответы на вопросы: Не заполнены")
         else:
             print(f"Пользователь {username} не найден!")
             
@@ -153,11 +139,11 @@ def get_database_stats():
         total_users = cursor.fetchone()[0]
         
         # Пользователи с заполненными формами
-        cursor.execute('SELECT COUNT(DISTINCT user_id) FROM form_data')
+        cursor.execute('SELECT COUNT(*) FROM users WHERE question_1 IS NOT NULL OR question_2 IS NOT NULL')
         users_with_forms = cursor.fetchone()[0]
         
         # Последние 5 пользователей
-        cursor.execute('SELECT user_id, username, created_at FROM users ORDER BY created_at DESC LIMIT 5')
+        cursor.execute('SELECT username, current_page, created_at FROM users ORDER BY created_at DESC LIMIT 5')
         recent_users = cursor.fetchall()
         
         cursor.close()
@@ -169,7 +155,7 @@ def get_database_stats():
         print(f"Пользователей без форм: {total_users - users_with_forms}")
         print("\nПоследние 5 пользователей:")
         for user in recent_users:
-            print(f"  {user[0]} (@{user[1] or 'без username'}) - {user[2].strftime('%d.%m.%Y %H:%M:%S')}")
+            print(f"  {user[0]} - страница {user[1]} - {user[2].strftime('%d.%m.%Y %H:%M:%S')}")
             
     except Exception as e:
         print(f"Ошибка получения статистики: {e}")

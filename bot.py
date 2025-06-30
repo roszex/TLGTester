@@ -22,6 +22,16 @@ dp = Dispatcher()
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
+    # Логируем данные пользователя
+    print(f"Bot: Получен /start от пользователя:")
+    if message.from_user:
+        print(f"Bot: username = {message.from_user.username}")
+        print(f"Bot: id = {message.from_user.id}")
+        print(f"Bot: first_name = {message.from_user.first_name}")
+        print(f"Bot: last_name = {message.from_user.last_name}")
+    else:
+        print(f"Bot: message.from_user is None")
+    
     # Формируем user_id
     user_id = None
     if message.from_user and message.from_user.username:
@@ -31,8 +41,11 @@ async def start(message: types.Message):
     else:
         user_id = 'unknown_user'
     
+    print(f"Bot: Создан user_id = {user_id}")
+    
     # Добавляем user_id к URL
     webapp_url = f"{WEBAPP_URL}?user_id={user_id}"
+    print(f"Bot: WebApp URL = {webapp_url}")
     
     builder = ReplyKeyboardBuilder()
     builder.add(KeyboardButton(

@@ -8,6 +8,11 @@ class ProgressManager {
         if (window.Telegram && window.Telegram.WebApp) {
             const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
             console.log('ProgressManager: Telegram user:', tgUser);
+            console.log('ProgressManager: Telegram user.username:', tgUser?.username);
+            console.log('ProgressManager: Telegram user.id:', tgUser?.id);
+            console.log('ProgressManager: Telegram user.first_name:', tgUser?.first_name);
+            console.log('ProgressManager: Telegram user.last_name:', tgUser?.last_name);
+            
             if (tgUser && tgUser.username) {
                 this.userId = '@' + tgUser.username;
                 console.log('ProgressManager: user_id из Telegram username:', this.userId);

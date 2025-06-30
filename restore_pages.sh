@@ -1,3 +1,11 @@
+#!/bin/bash
+
+# Восстанавливаем страницы 10-13
+for page in {10..13}; do
+    next_page=$((page + 1))
+    echo "Восстанавливаем страницу $page"
+    
+    cat > webapp/page_${page}/main.js << EOF
 // Подключаем ProgressManager
 // <script src="../progress.js"></script> должен быть в HTML
 
@@ -36,7 +44,7 @@ function forceLoadImages() {
 
 // Предзагрузка изображений для быстрой загрузки
 function preloadImages() {
-    const images = ['../10_page_photo.jpeg'];
+    const images = ['../${next_page}_page_photo.jpeg'];
     images.forEach(src => {
         const img = new Image();
         img.src = src;
@@ -54,7 +62,7 @@ window.addEventListener('load', function() {
     
     // Принудительно сохраняем текущую страницу
     if (window.progressManager) {
-        window.progressManager.savePage(9);
+        window.progressManager.savePage(${page});
     }
 });
 
@@ -76,7 +84,7 @@ function goToNextPage() {
             const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
-            const newUrl = baseUrl + '/../page_10/index.html' + (userId ? `?user_id=${userId}` : '');
+            const newUrl = baseUrl + '/../page_${next_page}/index.html' + (userId ? \`?user_id=\${userId}\` : '');
             
             console.log('Navigating to:', newUrl);
             window.location.href = newUrl;
@@ -91,3 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
         nextBtn.addEventListener('click', goToNextPage);
     }
 });
+EOF
+done
+
+echo "Все страницы восстановлены!" 

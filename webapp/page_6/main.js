@@ -82,4 +82,12 @@ function goToNextPage() {
             window.location.href = newUrl;
         }
     }, 500);
-} 
+}
+
+// Обработчик кнопки "И что? Тебя не обманули?"
+document.addEventListener('DOMContentLoaded', function() {
+    const nextBtn = document.querySelector('.lets-go');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', goToNextPage);
+    }
+}); 

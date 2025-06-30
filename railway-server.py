@@ -93,7 +93,7 @@ def update_user_data(user_id):
     
     if 'username' in data:
         user_data[user_id]['username'] = data['username']
-    if 'form_data' in data:
+    if 'form_data' in data and data['form_data'] is not None:
         form_data = data['form_data'].copy()
         if 'timestamp' in form_data:
             del form_data['timestamp']
@@ -127,7 +127,7 @@ def save_progress():
     if 'current_page' in data:
         user_data[user_id]['current_page'] = data['current_page']
     
-    if 'form_data' in data:
+    if 'form_data' in data and data['form_data'] is not None:
         form_data = data['form_data'].copy()
         if 'timestamp' in form_data:
             del form_data['timestamp']

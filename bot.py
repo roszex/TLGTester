@@ -22,10 +22,22 @@ dp = Dispatcher()
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
+    # Формируем user_id
+    user_id = None
+    if message.from_user and message.from_user.username:
+        user_id = '@' + message.from_user.username
+    elif message.from_user and message.from_user.id:
+        user_id = 'user_' + str(message.from_user.id)
+    else:
+        user_id = 'unknown_user'
+    
+    # Добавляем user_id к URL
+    webapp_url = f"{WEBAPP_URL}?user_id={user_id}"
+    
     builder = ReplyKeyboardBuilder()
     builder.add(KeyboardButton(
         text="Открыть WebApp",
-        web_app=WebAppInfo(url=WEBAPP_URL)
+        web_app=WebAppInfo(url=webapp_url)
     ))
     await message.answer(
         "Нажми кнопку для запуска WebApp:",

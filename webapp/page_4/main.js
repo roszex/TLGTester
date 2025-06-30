@@ -1,34 +1,80 @@
-// Ждем загрузки DOM
-document.addEventListener('DOMContentLoaded', function() {
-    const nextBtn = document.getElementById('nextBtn');
+// Подключаем ProgressManager
+// <script src="../progress.js"></script> должен быть в HTML
+
+// Определяем базовый путь к картинкам (теперь относительно текущего домена)
+let baseImgUrl = window.location.origin + "/";
+
+// Пример: document.getElementById('main-img').src = baseImgUrl + '1_page_photo.jpeg';
+
+// Принудительная загрузка изображений для iPhone Safari
+function forceLoadImages() {
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        // Создаем новый Image объект для принудительной загрузки
+        const newImg = new Image();
+        newImg.onload = function() {
+            img.src = this.src;
+            img.style.opacity = '1';
+        };
+        newImg.onerror = function() {
+            console.error('Failed to load image:', this.src);
+            // Попробуем загрузить через fetch
+            fetch(this.src)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    img.src = url;
+                    img.style.opacity = '1';
+                })
+                .catch(err => {
+                    console.error('Fetch also failed:', err);
+                });
+        };
+        newImg.src = img.src;
+    });
+}
+
+// Предзагрузка изображений для быстрой загрузки
+function preloadImages() {
+    const images = ['../5_page_photo.jpeg'];
+    images.forEach(src => {
+        const img = new Image();
+        img.src = src;
+    });
+}
+
+// Инициализация при загрузке страницы
+window.addEventListener('load', function() {
+    // Инициализируем Telegram WebApp
+    initTelegramWebApp();
     
-    if (!nextBtn) {
-        console.error('Button with id "nextBtn" not found!');
-        return;
-    }
+    // Загружаем изображения
+    preloadImages();
+    setTimeout(forceLoadImages, 100);
     
-    console.log('Button found, adding event listener');
+    // Прогресс сохраняется автоматически в ProgressManager
+});
+
+// Обработчик кнопки "А с чего всё начало меняться?"
+document.getElementById('nextBtn').addEventListener('click', function() {
+    const container = document.querySelector('.container');
     
-    let baseImgUrl = "https://roszex.github.io/EmelyanovTGBot-webapp/";
+    // Добавляем анимацию "ветра"
+    container.classList.add('wind-transition');
     
-    nextBtn.addEventListener('click', function() {
-        console.log('Button clicked!');
-        const container = document.querySelector('.container');
-        
-        // Добавляем анимацию "ветра"
-        container.classList.add('wind-transition');
-        
-        // Ждём окончания анимации и переходим
-        setTimeout(() => {
-            // Используем более надежный метод для избежания ngrok предупреждений
+    // Ждём окончания анимации и переходим
+    setTimeout(() => {
+        // Переходим на следующую страницу через ProgressManager
+        if (window.progressManager) {
+            window.progressManager.goToNextPage();
+        } else {
+            // Fallback если ProgressManager не загружен
             const currentUrl = window.location.href;
             const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
             const newUrl = baseUrl + '/../page_5/index.html';
             
             console.log('Navigating to:', newUrl);
-            
-            // Простое перенаправление без создания элементов
             window.location.href = newUrl;
-        }, 500);
-    });
+        }
+    }, 500);
 }); 

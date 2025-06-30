@@ -1,5 +1,5 @@
-// Подключаем API
-// <script src="../api.js"></script> должен быть в HTML
+// Подключаем ProgressManager
+// <script src="../progress.js"></script> должен быть в HTML
 
 // Определяем базовый путь к картинкам (теперь относительно текущего домена)
 let baseImgUrl = window.location.origin + "/";
@@ -52,9 +52,7 @@ window.addEventListener('load', function() {
     preloadImages();
     setTimeout(forceLoadImages, 100);
     
-    // Сохраняем прогресс на первой странице
-    const userId = getUserId();
-    api.saveProgress(userId, 1);
+    // Прогресс сохраняется автоматически в ProgressManager
 });
 
 // Обработчик кнопки "Поехали"
@@ -66,23 +64,17 @@ document.getElementById('letsGoBtn').addEventListener('click', function() {
     
     // Ждём окончания анимации и переходим
     setTimeout(() => {
-        // Сохраняем прогресс перед переходом
-        const userId = getUserId();
-        api.saveProgress(userId, 2);
-        
-        // Переходим на следующую страницу
-        const currentUrl = window.location.href;
-        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-        const newUrl = baseUrl + '/../page_2/index.html';
-        
-        console.log('Navigating to:', newUrl);
-        
-        // Создаем новый элемент <a> и программно кликаем по нему
-        const link = document.createElement('a');
-        link.href = newUrl;
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Переходим на следующую страницу через ProgressManager
+        if (window.progressManager) {
+            window.progressManager.goToNextPage();
+        } else {
+            // Fallback если ProgressManager не загружен
+            const currentUrl = window.location.href;
+            const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+            const newUrl = baseUrl + '/../page_2/index.html';
+            
+            console.log('Navigating to:', newUrl);
+            window.location.href = newUrl;
+        }
     }, 500);
 }); 

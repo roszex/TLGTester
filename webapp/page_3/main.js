@@ -1,125 +1,43 @@
-// Устанавливаем текущую дату
-function setCurrentDate() {
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const year = today.getFullYear();
-    const formattedDate = `${day}.${month}.${year}`;
+// Подключаем ProgressManager
+// <script src="../progress.js"></script> должен быть в HTML
+
+// Инициализация при загрузке страницы
+window.addEventListener('load', function() {
+    // Инициализируем Telegram WebApp
+    initTelegramWebApp();
     
-    document.getElementById('currentDate').textContent = formattedDate;
-}
+    // Устанавливаем текущую дату
+    const currentDate = new Date().toLocaleDateString('ru-RU');
+    document.getElementById('currentDate').textContent = currentDate;
+    
+    // Прогресс сохраняется автоматически в ProgressManager
+});
 
-// Функция для скрытия клавиатуры только при необходимости
-function hideKeyboard() {
-    // Скрываем фокус со всех полей ввода
-    if (document.activeElement && document.activeElement.tagName === 'INPUT') {
-        document.activeElement.blur();
-    }
-}
-
-// Функция для валидации формы
-function validateForm() {
+// Обработчик отправки формы
+document.getElementById('submitBtn').addEventListener('click', async function() {
     const form = document.getElementById('contactForm');
-    const age = document.getElementById('age').value;
-    const occupation = document.getElementById('occupation').value.trim();
-    const income = document.getElementById('income').value.trim();
-    const motivation = document.getElementById('motivation').value.trim();
-    const teamwork = document.getElementById('teamwork').value.trim();
     
-    // Проверяем, что все поля заполнены
-    if (!age || !occupation || !income || !motivation || !teamwork) {
-        alert('Пожалуйста, заполните все поля формы!');
-        return false;
+    // Проверяем валидность формы
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
     }
     
-    // Проверяем возраст
-    const ageNum = parseInt(age);
-    if (ageNum < 16 || ageNum > 100) {
-        alert('Возраст должен быть от 16 до 100 лет!');
-        return false;
-    }
-    
-    // Проверяем, что текстовые поля не слишком короткие
-    if (income.length < 3) {
-        alert('Пожалуйста, укажите ваш доход!');
-        return false;
-    }
-    
-    if (motivation.length < 5) {
-        alert('Пожалуйста, расскажите о вашей мотивации!');
-        return false;
-    }
-    
-    if (teamwork.length < 5) {
-        alert('Пожалуйста, расскажите о желании работать в команде!');
-        return false;
-    }
-    
-    return true;
-}
-
-// Функция для сбора данных формы
-async function collectFormData() {
+    // Собираем данные формы
     const formData = {
         age: document.getElementById('age').value,
-        occupation: document.getElementById('occupation').value.trim(),
-        income: document.getElementById('income').value.trim(),
-        motivation: document.getElementById('motivation').value.trim(),
-        teamwork: document.getElementById('teamwork').value.trim(),
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent
+        occupation: document.getElementById('occupation').value,
+        income: document.getElementById('income').value,
+        motivation: document.getElementById('motivation').value,
+        teamwork: document.getElementById('teamwork').value
     };
     
-    // Сохраняем данные в localStorage для возможного использования
-    localStorage.setItem('formData', JSON.stringify(formData));
+    console.log('Отправляем данные формы:', formData);
     
-    // Отправляем данные на Railway сервер
-    try {
-        const userId = getUserId();
-        console.log('Отправляем данные формы на сервер для пользователя:', userId);
-        
-        // Сохраняем данные формы через API
-        await api.saveFormData(userId, formData);
-        console.log('✅ Данные формы успешно отправлены на сервер');
-        
-        // Показываем уведомление пользователю
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.showAlert('✅ Форма успешно отправлена!');
-        }
-        
-    } catch (error) {
-        console.error('❌ Ошибка при отправке данных формы:', error);
-        
-        // Показываем ошибку пользователю
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.showAlert('❌ Ошибка при отправке формы. Попробуйте еще раз.');
-        }
-    }
-    
-    console.log('Собранные данные:', formData);
-    return formData;
-}
-
-// Обработчик клика по кнопке
-document.getElementById('submitBtn').addEventListener('click', async function() {
-    // Скрываем клавиатуру только при нажатии на кнопку отправки
-    hideKeyboard();
-    
-    if (validateForm()) {
-        // Показываем индикатор загрузки
-        const submitBtn = document.getElementById('submitBtn');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Отправляем...';
-        submitBtn.disabled = true;
-        
-        try {
-            // Собираем и отправляем данные формы
-            const formData = await collectFormData();
-            
-            // Сохраняем прогресс
-            const userId = getUserId();
-            await api.saveProgress(userId, 4);
-            
+    // Сохраняем данные через ProgressManager
+    if (window.progressManager) {
+        const success = await window.progressManager.saveFormData(formData);
+        if (success) {
             // Переходим на следующую страницу
             const currentUrl = window.location.href;
             const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
@@ -127,46 +45,10 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
             
             console.log('Navigating to:', newUrl);
             window.location.href = newUrl;
-            
-        } catch (error) {
-            console.error('Ошибка при обработке формы:', error);
-            
-            // Возвращаем кнопку в исходное состояние
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-            
-            // Показываем ошибку пользователю
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.showAlert('❌ Ошибка при отправке формы. Попробуйте еще раз.');
-            }
+        } else {
+            alert('Ошибка при сохранении данных. Попробуйте еще раз.');
         }
+    } else {
+        alert('Ошибка: ProgressManager не загружен');
     }
-});
-
-// Добавляем обработчик Enter для полей формы
-document.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-        hideKeyboard();
-        document.getElementById('submitBtn').click();
-    }
-});
-
-// Скрываем клавиатуру только при изменении ориентации экрана
-window.addEventListener('orientationchange', function() {
-    setTimeout(hideKeyboard, 100);
-});
-
-// Запускаем при загрузке страницы
-window.addEventListener('load', function() {
-    setCurrentDate();
-    
-    // Инициализируем Telegram WebApp
-    initTelegramWebApp();
-    
-    // Сохраняем прогресс на странице формы
-    const userId = getUserId();
-    api.saveProgress(userId, 3);
-});
-
-let baseImgUrl = "https://roszex.github.io/EmelyanovTGBot-webapp/";
+}); 

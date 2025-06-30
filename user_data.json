@@ -1,0 +1,26 @@
+{
+  "example_user_123": {
+    "username": "@example_user",
+    "form_data": {
+      "age": "25",
+      "occupation": "Программист",
+      "income": "80000 руб/мес",
+      "motivation": "10 из 10",
+      "teamwork": "Очень хочу работать в команде"
+    },
+    "current_page": 1,
+    "created_at": "29.06.2025 20:14:13"
+  },
+  "test_user_456": {
+    "username": "@test_user",
+    "form_data": {
+      "age": "30",
+      "occupation": "Дизайнер",
+      "income": "120000 руб/мес",
+      "motivation": "9 из 10",
+      "teamwork": "Готов работать в команде"
+    },
+    "current_page": 5,
+    "created_at": "29.06.2025 20:19:06"
+  }
+} 

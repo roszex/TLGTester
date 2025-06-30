@@ -12,7 +12,7 @@ load_dotenv(".env")
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 # Используем Railway сервер для WebApp
-WEBAPP_URL = "https://emelyanovtgbot-webapp-production.up.railway.app/"
+WEBAPP_URL = str(os.getenv("WEBAPP_URL"))
 
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN должен быть задан в .env файле")

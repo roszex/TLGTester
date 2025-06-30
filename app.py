@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""
+Простая версия сервера для Railway с PostgreSQL базой данных
+Версия: 2.0 - с базой данных
+"""
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os

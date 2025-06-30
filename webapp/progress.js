@@ -6,14 +6,19 @@ class ProgressManager {
         // Получаем user ID из URL или из Telegram WebApp
         const urlParams = new URLSearchParams(window.location.search);
         this.userId = urlParams.get('user_id');
+        console.log('ProgressManager: user_id из URL:', this.userId);
+        console.log('ProgressManager: Полный URL:', window.location.href);
         
         // Если нет user_id в URL, пробуем получить из Telegram WebApp
         if (!this.userId && window.Telegram && window.Telegram.WebApp) {
             const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
+            console.log('ProgressManager: Telegram user:', tgUser);
             if (tgUser && tgUser.username) {
                 this.userId = '@' + tgUser.username;
+                console.log('ProgressManager: user_id из Telegram username:', this.userId);
             } else if (tgUser && tgUser.id) {
                 this.userId = 'user_' + tgUser.id;
+                console.log('ProgressManager: user_id из Telegram ID:', this.userId);
             }
         }
         
@@ -78,27 +83,32 @@ class ProgressManager {
             return false;
         }
         
-        console.log('ProgressManager: Сохраняем форму', formData);
+        console.log('ProgressManager: Сохраняем форму для пользователя', this.userId, formData);
         
         try {
+            const requestBody = {
+                user_id: this.userId,
+                form_data: formData
+            };
+            console.log('ProgressManager: Отправляем данные формы:', requestBody);
+            
             const response = await fetch(`${this.serverUrl}/api/save_form_data`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    user_id: this.userId,
-                    form_data: formData
-                })
+                body: JSON.stringify(requestBody)
             });
             
+            console.log('ProgressManager: Получен ответ формы:', response.status, response.statusText);
+            
             if (response.ok) {
-                console.log('ProgressManager: Форма сохранена');
+                const responseData = await response.json();
+                console.log('ProgressManager: Форма сохранена, ответ:', responseData);
                 return true;
             } else {
-                console.error('ProgressManager: Ошибка сохранения формы', response.status);
                 const errorText = await response.text();
-                console.error('ProgressManager: Ошибка детали:', errorText);
+                console.error('ProgressManager: Ошибка сохранения формы', response.status, errorText);
                 return false;
             }
         } catch (error) {
@@ -131,24 +141,31 @@ class ProgressManager {
             return;
         }
         
-        console.log('ProgressManager: Сохраняем страницу', pageNumber);
+        console.log('ProgressManager: Сохраняем страницу', pageNumber, 'для пользователя', this.userId);
         
         try {
+            const requestBody = {
+                user_id: this.userId,
+                current_page: pageNumber
+            };
+            console.log('ProgressManager: Отправляем запрос:', requestBody);
+            
             const response = await fetch(`${this.serverUrl}/api/save_progress`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    user_id: this.userId,
-                    current_page: pageNumber
-                })
+                body: JSON.stringify(requestBody)
             });
             
+            console.log('ProgressManager: Получен ответ:', response.status, response.statusText);
+            
             if (response.ok) {
-                console.log('ProgressManager: Страница', pageNumber, 'сохранена');
+                const responseData = await response.json();
+                console.log('ProgressManager: Страница', pageNumber, 'сохранена, ответ:', responseData);
             } else {
-                console.error('ProgressManager: Ошибка сохранения страницы', pageNumber, response.status);
+                const errorText = await response.text();
+                console.error('ProgressManager: Ошибка сохранения страницы', pageNumber, response.status, errorText);
             }
         } catch (error) {
             console.error('ProgressManager: Ошибка сети при сохранении страницы', pageNumber, error);

@@ -105,7 +105,8 @@ def get_or_create_user(user_id):
     conn = get_db_connection()
     if not conn:
         logger.error("Failed to get database connection")
-        return None
+        # Fallback: возвращаем фиктивного пользователя
+        return {'username': user_id, 'current_page': 1}
     
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -137,7 +138,8 @@ def get_or_create_user(user_id):
         if conn:
             conn.rollback()
             conn.close()
-        return None
+        # Fallback: возвращаем фиктивного пользователя
+        return {'username': user_id, 'current_page': 1}
 
 def update_user_progress(user_id, current_page, form_data=None):
     """Обновляет прогресс пользователя"""
@@ -391,9 +393,12 @@ if __name__ == '__main__':
     print(f"Starting server on port {port}")
     
     # Инициализируем базу данных
-    if init_database():
-        print("Database initialized successfully")
-    else:
-        print("Failed to initialize database")
+    try:
+        if init_database():
+            print("Database initialized successfully")
+        else:
+            print("Failed to initialize database - continuing without database")
+    except Exception as e:
+        print(f"Database initialization error: {e} - continuing without database")
     
     app.run(host='0.0.0.0', port=port, debug=False) 

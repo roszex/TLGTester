@@ -86,6 +86,16 @@ class ProgressManager {
                     });
                 }
                 
+                // Отключаем возможность закрытия свайпами
+                if (tg.enableClosingConfirmation) {
+                    // Не включаем подтверждение закрытия
+                }
+                
+                // Дополнительная защита от закрытия
+                if (tg.MainButton) {
+                    tg.MainButton.hide();
+                }
+                
                 console.log('Telegram WebApp инициализирован успешно в полноэкранном режиме с безопасной зоной');
             } catch (error) {
                 console.error('Ошибка инициализации Telegram WebApp:', error);

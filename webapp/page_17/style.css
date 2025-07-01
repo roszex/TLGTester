@@ -24,6 +24,10 @@ body {
     text-size-adjust: none;
 
     overflow-y: auto;
+
+    /* Prevent overscroll bounce */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: auto;
 }
 /* Статичная челка сверху */
 .static-header {

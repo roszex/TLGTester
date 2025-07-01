@@ -11,16 +11,20 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 DATABASE_URL = os.getenv('DATABASE_URL')
 
 def get_owners():
-    """Читает список владельцев из файла"""
+    """Читает список владельцев из JSON файла"""
+    import json
     owners = []
     try:
-        with open('owners.txt', 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and line.isdigit():
-                    owners.append(int(line))
+        with open('owners.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            owners = data.get('owners', [])
+            print(f"Загружено {len(owners)} владельцев из owners.json")
     except FileNotFoundError:
-        print("Файл owners.txt не найден!")
+        print("Файл owners.json не найден!")
+    except json.JSONDecodeError as e:
+        print(f"Ошибка парсинга owners.json: {e}")
+    except Exception as e:
+        print(f"Ошибка чтения owners.json: {e}")
     return owners
 
 def get_lead_data(lead_id):

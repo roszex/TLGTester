@@ -30,16 +30,20 @@ app.config['JSON_AS_ASCII'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 def get_owners():
-    """Читает список владельцев из файла"""
+    """Читает список владельцев из JSON файла"""
+    import json
     owners = []
     try:
-        with open('owners.txt', 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and line.isdigit():
-                    owners.append(int(line))
+        with open('owners.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            owners = data.get('owners', [])
+            logger.info(f"Загружено {len(owners)} владельцев из owners.json")
     except FileNotFoundError:
-        logger.warning("Файл owners.txt не найден!")
+        logger.warning("Файл owners.json не найден!")
+    except json.JSONDecodeError as e:
+        logger.error(f"Ошибка парсинга owners.json: {e}")
+    except Exception as e:
+        logger.error(f"Ошибка чтения owners.json: {e}")
     return owners
 
 def send_telegram_message(chat_id, message):

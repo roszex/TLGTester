@@ -4,6 +4,9 @@ class ProgressManager {
         console.log('ProgressManager: Конструктор вызван');
         console.log('ProgressManager: Telegram WebApp доступен:', !!(window.Telegram && window.Telegram.WebApp));
         
+        // Инициализируем Telegram WebApp
+        this.initTelegramWebApp();
+        
         // Сначала пробуем получить из URL (приоритет от бота)
         const urlParams = new URLSearchParams(window.location.search);
         this.userId = urlParams.get('user_id');
@@ -45,6 +48,43 @@ class ProgressManager {
         
         // Восстанавливаем прогресс при загрузке
         this.restoreProgressOnLoad();
+    }
+    
+    // Инициализация Telegram WebApp для полноэкранного режима
+    initTelegramWebApp() {
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            
+            try {
+                // Расширяем WebApp на весь экран
+                tg.expand();
+                
+                // Запрашиваем полноэкранный режим если доступен
+                if (tg.requestFullscreen) {
+                    tg.requestFullscreen();
+                }
+                
+                // Устанавливаем цвета темы для соответствия приложению
+                tg.setHeaderColor('#000000');
+                tg.setBackgroundColor('#000000');
+                
+                // Отключаем подтверждение закрытия для предотвращения сообщения "изменения могут не сохраниться"
+                if (tg.enableClosingConfirmation) {
+                    // Не включаем подтверждение закрытия
+                }
+                
+                // Устанавливаем основную кнопку если нужно
+                if (tg.MainButton) {
+                    tg.MainButton.hide();
+                }
+                
+                console.log('Telegram WebApp инициализирован успешно в полноэкранном режиме');
+            } catch (error) {
+                console.error('Ошибка инициализации Telegram WebApp:', error);
+            }
+        } else {
+            console.log('Telegram WebApp недоступен - запуск в режиме браузера');
+        }
     }
     
     getCurrentPage() {

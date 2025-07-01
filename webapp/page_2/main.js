@@ -6,6 +6,43 @@ let baseImgUrl = window.location.origin + "/";
 
 // Пример: document.getElementById('main-img').src = baseImgUrl + '1_page_photo.jpeg';
 
+// Инициализация Telegram WebApp для полноэкранного режима
+function initTelegramWebApp() {
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        
+        try {
+            // Расширяем WebApp на весь экран
+            tg.expand();
+            
+            // Запрашиваем полноэкранный режим если доступен
+            if (tg.requestFullscreen) {
+                tg.requestFullscreen();
+            }
+            
+            // Устанавливаем цвета темы для соответствия приложению
+            tg.setHeaderColor('#000000');
+            tg.setBackgroundColor('#000000');
+            
+            // Отключаем подтверждение закрытия для предотвращения сообщения "изменения могут не сохраниться"
+            if (tg.enableClosingConfirmation) {
+                // Не включаем подтверждение закрытия
+            }
+            
+            // Устанавливаем основную кнопку если нужно
+            if (tg.MainButton) {
+                tg.MainButton.hide();
+            }
+            
+            console.log('Telegram WebApp инициализирован успешно в полноэкранном режиме');
+        } catch (error) {
+            console.error('Ошибка инициализации Telegram WebApp:', error);
+        }
+    } else {
+        console.log('Telegram WebApp недоступен - запуск в режиме браузера');
+    }
+}
+
 // Принудительная загрузка изображений для iPhone Safari
 function forceLoadImages() {
     const images = document.querySelectorAll('img');

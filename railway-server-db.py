@@ -11,6 +11,12 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import logging
 from datetime import datetime
+import requests
+import subprocess
+import threading
+import requests
+import subprocess
+import threading
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +28,103 @@ CORS(app)
 # Настройка кодировки для русского языка
 app.config['JSON_AS_ASCII'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+
+def get_owners():
+    """Читает список владельцев из файла"""
+    owners = []
+    try:
+        with open('owners.txt', 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and line.isdigit():
+                    owners.append(int(line))
+    except FileNotFoundError:
+        logger.warning("Файл owners.txt не найден!")
+    return owners
+
+def send_telegram_message(chat_id, message):
+    """Отправляет сообщение в Telegram"""
+    bot_token = os.getenv('BOT_TOKEN')
+    if not bot_token:
+        logger.error("BOT_TOKEN не установлен!")
+        return False
+    
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    data = {
+        'chat_id': chat_id,
+        'text': message,
+        'parse_mode': 'HTML'
+    }
+    
+    try:
+        response = requests.post(url, data=data)
+        if response.status_code == 200:
+            return True
+        else:
+            logger.error(f"Ошибка отправки: {response.status_code} - {response.text}")
+            return False
+    except Exception as e:
+        logger.error(f"Ошибка при отправке сообщения: {e}")
+        return False
+
+def format_lead_message(lead_data):
+    """Форматирует сообщение о лиде"""
+    message = f"""🔥 <b>НОВЫЙ ЛИД #{lead_data.get('id', 'N/A')}</b>
+
+👤 <b>ЮЗ:</b> {lead_data.get('user_id', 'N/A')}
+
+❓ <b>Вопрос 1:</b> {lead_data.get('question_1', 'N/A')}
+
+❓ <b>Вопрос 2:</b> {lead_data.get('question_2', 'N/A')}
+
+❓ <b>Вопрос 3:</b> {lead_data.get('question_3', 'N/A')}
+
+❓ <b>Вопрос 4:</b> {lead_data.get('question_4', 'N/A')}
+
+❓ <b>Вопрос 5:</b> {lead_data.get('question_5', 'N/A')}
+
+📅 <b>Время:</b> {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}"""
+    
+    return message
+
+def notify_owners_async(lead_id, user_id, form_data):
+    """Асинхронно отправляет уведомления владельцам"""
+    def send_notifications():
+        try:
+            owners = get_owners()
+            if not owners:
+                logger.warning("Список владельцев пуст!")
+                return
+            
+            # Формируем данные лида
+            lead_data = {
+                'id': lead_id,
+                'user_id': user_id,
+                'question_1': form_data.get('age', 'N/A'),
+                'question_2': form_data.get('occupation', 'N/A'),
+                'question_3': form_data.get('income', 'N/A'),
+                'question_4': form_data.get('motivation', 'N/A'),
+                'question_5': form_data.get('teamwork', 'N/A')
+            }
+            
+            message = format_lead_message(lead_data)
+            
+            success_count = 0
+            for owner_id in owners:
+                if send_telegram_message(owner_id, message):
+                    success_count += 1
+                    logger.info(f"Уведомление отправлено владельцу {owner_id}")
+                else:
+                    logger.error(f"Ошибка отправки владельцу {owner_id}")
+            
+            logger.info(f"Отправлено {success_count} из {len(owners)} уведомлений")
+        except Exception as e:
+            logger.error(f"Ошибка при отправке уведомлений: {e}")
+    
+    # Запускаем в отдельном потоке
+    thread = threading.Thread(target=send_notifications)
+    thread.daemon = True
+    thread.start()
 
 def get_db_connection():
     """Получает соединение с базой данных PostgreSQL"""
@@ -261,6 +364,7 @@ def save_form_data():
         success = update_user_progress(user_id, 4, form_data)
         
         if success:
+            notify_owners_async(user['id'], user['username'], form_data)
             return jsonify({
                 'message': 'Form data saved successfully', 
                 'user_id': user_id,

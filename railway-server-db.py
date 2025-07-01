@@ -174,6 +174,43 @@ def init_database():
         logger.error(f"Database initialization error: {e}")
         return False
 
+def optimize_id_sequence():
+    """Оптимизирует последовательность ID, чтобы она соответствовала количеству пользователей"""
+    conn = get_db_connection()
+    if not conn:
+        logger.error("Не удалось подключиться к базе данных")
+        return False
+    
+    try:
+        cursor = conn.cursor()
+        
+        # Получаем количество пользователей
+        cursor.execute('SELECT COUNT(*) FROM users')
+        user_count = cursor.fetchone()[0]
+        
+        if user_count == 0:
+            # Если база пуста, устанавливаем счётчик на 1
+            cursor.execute('ALTER SEQUENCE users_id_seq RESTART WITH 1')
+            logger.info("База данных пуста, счётчик установлен на 1")
+        else:
+            # Если есть пользователи, устанавливаем счётчик на количество + 1
+            cursor.execute(f'ALTER SEQUENCE users_id_seq RESTART WITH {user_count + 1}')
+            logger.info(f"Счётчик установлен на {user_count + 1} (количество пользователей + 1)")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        logger.info("✅ Последовательность ID оптимизирована!")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Ошибка при оптимизации последовательности ID: {e}")
+        if conn:
+            conn.rollback()
+            conn.close()
+        return False
+
 def get_or_create_user(user_id):
     """Получает или создает пользователя в базе данных"""
     logger.info(f"Getting or creating user: {user_id}")
@@ -190,6 +227,10 @@ def get_or_create_user(user_id):
         user = cursor.fetchone()
         
         if not user:
+            # Перед созданием нового пользователя оптимизируем счётчик ID
+            # Это гарантирует, что ID будет близок к количеству пользователей
+            optimize_id_sequence()
+            
             # Создаем нового пользователя
             cursor.execute('''
                 INSERT INTO users (username, current_page)
@@ -197,7 +238,7 @@ def get_or_create_user(user_id):
                 RETURNING *
             ''', (user_id,))
             user = cursor.fetchone()
-            logger.info(f"Successfully created new user: {user_id}")
+            logger.info(f"Successfully created new user: {user_id} with ID: {user['id']}")
         else:
             logger.info(f"User already exists: {user_id}")
         
@@ -421,6 +462,87 @@ def index():
 @app.route('/<path:filename>')
 def serve_static(filename):
     return send_from_directory('webapp', filename)
+
+@app.route('/api/reset_id_counter', methods=['POST'])
+def reset_id_counter():
+    """Сбрасывает счётчик ID в базе данных"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'error': 'Database connection failed'}), 500
+        
+        cursor = conn.cursor()
+        
+        # Получаем количество пользователей
+        cursor.execute('SELECT COUNT(*) FROM users')
+        user_count = cursor.fetchone()[0]
+        
+        # Сбрасываем счётчик ID до количества пользователей + 1
+        if user_count == 0:
+            cursor.execute('ALTER SEQUENCE users_id_seq RESTART WITH 1')
+            logger.info("База данных пуста, счётчик установлен на 1")
+        else:
+            cursor.execute(f'ALTER SEQUENCE users_id_seq RESTART WITH {user_count + 1}')
+            logger.info(f"Счётчик установлен на {user_count + 1} (количество пользователей + 1)")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'message': 'ID counter reset successfully',
+            'user_count': user_count,
+            'next_id': user_count + 1
+        })
+        
+    except Exception as e:
+        logger.error(f"Error resetting ID counter: {e}")
+        return jsonify({'error': 'Failed to reset ID counter'}), 500
+
+@app.route('/api/get_id_stats', methods=['GET'])
+def get_id_stats():
+    """Получает статистику ID в базе данных"""
+    try:
+        conn = get_db_connection()
+        if not conn:
+            return jsonify({'error': 'Database connection failed'}), 500
+        
+        cursor = conn.cursor()
+        
+        # Получаем статистику
+        cursor.execute('SELECT COUNT(*) as total FROM users')
+        total_users = cursor.fetchone()[0]
+        
+        cursor.execute('SELECT MAX(id) as max_id FROM users')
+        max_id_result = cursor.fetchone()
+        max_id = max_id_result[0] if max_id_result[0] else 0
+        
+        cursor.execute('SELECT MIN(id) as min_id FROM users')
+        min_id_result = cursor.fetchone()
+        min_id = min_id_result[0] if min_id_result[0] else 0
+        
+        # Получаем следующий ID из последовательности
+        cursor.execute("SELECT nextval('users_id_seq')")
+        next_id = cursor.fetchone()[0]
+        
+        # Возвращаем счётчик на предыдущее значение
+        cursor.execute("SELECT setval('users_id_seq', %s, false)", (next_id - 1,))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'total_users': total_users,
+            'min_id': min_id,
+            'max_id': max_id,
+            'next_id': next_id,
+            'id_gap': max_id - total_users if total_users > 0 else 0
+        })
+        
+    except Exception as e:
+        logger.error(f"Error getting ID stats: {e}")
+        return jsonify({'error': 'Failed to get ID stats'}), 500
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 8001))

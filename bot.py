@@ -84,7 +84,7 @@ async def handle_webapp_data(message: types.Message):
                 # Отправляем фото с описанием
                 await message.answer_photo(
                     photo=types.FSInputFile("outro_photo.jpeg"),
-                    caption="Потом сочтемся)\n\nПиши мне на аккаунт @MakerssAsis, мой ассистент назначит время созвона.\n\nДо встречи братец! Я полетел",
+                    caption="Потом сочтемся)\n\nПиши мне на аккаунт @EmelyanAssis, мой ассистент назначит время созвона.\n\nДо встречи братец! Я полетел",
                     reply_markup=types.ReplyKeyboardRemove()
                 )
             else:

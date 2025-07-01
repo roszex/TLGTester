@@ -16,9 +16,7 @@ function initTelegramWebApp() {
             tg.expand();
             
             // Запрашиваем полноэкранный режим если доступен
-            if (tg.requestFullscreen) {
-                tg.requestFullscreen();
-            }
+            tg.requestFullscreen();
             
             // Устанавливаем цвета темы для соответствия приложению
             tg.setHeaderColor('#000000');

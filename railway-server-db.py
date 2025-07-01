@@ -426,10 +426,10 @@ def save_progress():
         if not user_id:
             return jsonify({'error': 'Missing user_id'}), 400
         
-        # Получаем или создаем пользователя
-        user = get_or_create_user(user_id)
+        # Получаем пользователя, но не создаём, если его нет
+        user = get_user_data(user_id)
         if not user:
-            return jsonify({'error': 'Failed to create user'}), 500
+            return jsonify({'error': 'User does not exist'}), 404
         
         # Обновляем прогресс
         success = update_user_progress(user_id, current_page)

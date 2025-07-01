@@ -218,3 +218,12 @@ html {
         font-size: 18px;
     }
 }
+
+/* Стили для красного текста */
+.red-text {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #ff0000;
+    margin: 20px 0;
+    text-align: center;
+}

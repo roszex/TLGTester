@@ -78,7 +78,15 @@ class ProgressManager {
                     tg.MainButton.hide();
                 }
                 
-                console.log('Telegram WebApp инициализирован успешно в полноэкранном режиме');
+                // Устанавливаем безопасную зону для контента
+                if (tg.setViewportSettings) {
+                    tg.setViewportSettings({
+                        can_minimize: false,
+                        can_expand: true
+                    });
+                }
+                
+                console.log('Telegram WebApp инициализирован успешно в полноэкранном режиме с безопасной зоной');
             } catch (error) {
                 console.error('Ошибка инициализации Telegram WebApp:', error);
             }

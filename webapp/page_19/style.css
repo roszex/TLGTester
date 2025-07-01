@@ -1,0 +1,177 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #000;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    /* iPhone Safari specific */
+    -webkit-overflow-scrolling: touch;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* iPhone Safari specific */
+    -webkit-overflow-scrolling: touch;
+}
+
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 32px 16px 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Анимация появления */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Анимация "ветра" при переходе */
+@keyframes windTransition {
+    0% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    25% {
+        transform: translateX(-10px) scale(0.95);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateX(-30px) scale(0.9);
+        opacity: 0.6;
+    }
+    75% {
+        transform: translateX(-50px) scale(0.85);
+        opacity: 0.4;
+    }
+    100% {
+        transform: translateX(-100vw) scale(0.8);
+        opacity: 0;
+    }
+}
+
+.wind-transition {
+    animation: windTransition 0.5s ease-out forwards;
+}
+
+.title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 18px;
+    margin-top: 24px;
+    text-align: center;
+    color: #ff0000;
+    line-height: 1.4;
+}
+
+.page-image {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: photoLoad 0.4s ease-in 0.1s forwards;
+    /* iPhone Safari specific */
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Анимация загрузки фото */
+@keyframes photoLoad {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.text-content {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 24px;
+    text-align: center;
+    width: 100%;
+    max-width: 320px;
+}
+
+.text-content p {
+    line-height: 1.6;
+    text-align: justify;
+}
+
+.next-button {
+    width: 100%;
+    max-width: 320px;
+    padding: 16px 0;
+    background: #fff;
+    color: #000;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    /* iPhone Safari specific */
+    -webkit-appearance: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.next-button:hover {
+    transform: scale(1.02);
+}
+
+.next-button:active {
+    background: #eee;
+    color: #000;
+    transform: scale(0.98);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+    .text-content {
+        font-size: 16px;
+    }
+    
+    .title {
+        font-size: 1.1rem;
+    }
+} 

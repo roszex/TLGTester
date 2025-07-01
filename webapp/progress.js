@@ -130,6 +130,18 @@ class ProgressManager {
         
         console.log('ProgressManager: Переход на страницу', nextPage);
         
+        // Если это последняя страница (25), возвращаемся к первой
+        if (currentPage >= 25) {
+            console.log('ProgressManager: Это последняя страница, возвращаемся к началу');
+            const currentUrl = window.location.href;
+            const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+            const newUrl = baseUrl + `/../page_1/index.html?user_id=${this.userId}`;
+            
+            console.log('ProgressManager: Переходим на первую страницу', newUrl);
+            window.location.href = newUrl;
+            return;
+        }
+        
         // Сохраняем прогресс на следующую страницу
         await this.savePage(nextPage);
         

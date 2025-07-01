@@ -66,6 +66,40 @@ async def start(message: types.Message):
         parse_mode=ParseMode.HTML
     )
 
+@dp.message()
+async def handle_webapp_data(message: types.Message):
+    # Проверяем, есть ли данные от WebApp
+    if message.web_app_data:
+        try:
+            import json
+            data = json.loads(message.web_app_data.data)
+            print(f"Bot: Получены данные от WebApp: {data}")
+            
+            # Обрабатываем разные типы действий
+            if data.get('action') == 'thank_you_response':
+                # Пользователь нажал кнопку "Как я могу тебя отблагодарить?"
+                user_id = data.get('user_id', 'unknown')
+                print(f"Bot: Пользователь {user_id} завершил историю")
+                
+                # Отправляем сообщение "пока"
+                await message.answer("пока")
+                
+                # Можно также отправить дополнительную информацию
+                await message.answer(
+                    "Спасибо, что дочитал до конца! Если хочешь связаться со мной, пиши в личку.",
+                    reply_markup=types.ReplyKeyboardRemove()
+                )
+            else:
+                print(f"Bot: Неизвестное действие: {data.get('action')}")
+                
+        except json.JSONDecodeError as e:
+            print(f"Bot: Ошибка парсинга JSON: {e}")
+        except Exception as e:
+            print(f"Bot: Ошибка обработки данных WebApp: {e}")
+    else:
+        # Обычное сообщение, игнорируем
+        pass
+
 async def main():
     await dp.start_polling(bot)
 

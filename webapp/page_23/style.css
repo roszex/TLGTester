@@ -132,6 +132,11 @@ html {
     text-align: justify;
 }
 
+.centered {
+    text-align: center;
+    display: block;
+}
+
 .next-button {
     width: 100%;
     max-width: 320px;

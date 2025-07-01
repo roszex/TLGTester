@@ -175,6 +175,10 @@ html {
     max-width: 320px;
 }
 
+.centered {
+    text-align: center;
+}
+
 .bio-content {
     font-size: 1.1rem;
     line-height: 1.6;

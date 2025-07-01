@@ -81,12 +81,10 @@ async def handle_webapp_data(message: types.Message):
                 user_id = data.get('user_id', 'unknown')
                 print(f"Bot: Пользователь {user_id} завершил историю")
                 
-                # Отправляем сообщение "пока"
-                await message.answer("пока")
-                
-                # Можно также отправить дополнительную информацию
-                await message.answer(
-                    "Спасибо, что дочитал до конца! Если хочешь связаться со мной, пиши в личку.",
+                # Отправляем фото с описанием
+                await message.answer_photo(
+                    photo=types.FSInputFile("outro_photo.jpeg"),
+                    caption="Потом сочтемся)\n\nПиши мне на аккаунт @MakerssAsis, мой ассистент назначит время созвона.\n\nДо встречи братец! Я полетел",
                     reply_markup=types.ReplyKeyboardRemove()
                 )
             else:

@@ -10,13 +10,9 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import logging
-from datetime import datetime
-import requests
-import subprocess
 import threading
 import requests
 import subprocess
-import threading
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -85,9 +81,7 @@ def format_lead_message(lead_data):
 
 ❓ <b>Вопрос 4:</b> {lead_data.get('question_4', 'N/A')}
 
-❓ <b>Вопрос 5:</b> {lead_data.get('question_5', 'N/A')}
-
-📅 <b>Время:</b> {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}"""
+❓ <b>Вопрос 5:</b> {lead_data.get('question_5', 'N/A')}"""
     
     return message
 

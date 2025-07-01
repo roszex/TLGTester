@@ -4,7 +4,7 @@
 import os
 import requests
 import psycopg2
-from datetime import datetime
+
 
 # Конфигурация
 BOT_TOKEN = os.getenv('BOT_TOKEN')
@@ -95,9 +95,7 @@ def format_lead_message(lead_data):
 
 ❓ <b>Вопрос 4:</b> {lead_data.get('question_4', 'N/A')}
 
-❓ <b>Вопрос 5:</b> {lead_data.get('question_5', 'N/A')}
-
-📅 <b>Время:</b> {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}"""
+❓ <b>Вопрос 5:</b> {lead_data.get('question_5', 'N/A')}"""
     
     return message
 

@@ -119,6 +119,7 @@ html {
 }
 
 .text-content {
+    font-family: 'Segoe UI', Arial, sans-serif;
     font-size: 1.1rem;
     color: #fff;
     margin-bottom: 24px;
@@ -168,6 +169,7 @@ html {
 /* Mobile responsiveness */
 @media (max-width: 480px) {
     .text-content {
+    font-family: 'Segoe UI', Arial, sans-serif;
         font-size: 16px;
     }
     

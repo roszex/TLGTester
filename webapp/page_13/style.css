@@ -180,6 +180,7 @@ html {
 }
 
 .bio-content {
+    font-family: 'Segoe UI', Arial, sans-serif;
     font-size: 1.1rem;
     line-height: 1.6;
     text-align: justify;
@@ -200,6 +201,7 @@ html {
 /* Mobile responsiveness для новых элементов */
 @media (max-width: 768px) {
     .bio-content {
+    font-family: 'Segoe UI', Arial, sans-serif;
         font-size: 16px;
     }
     
@@ -215,6 +217,7 @@ html {
 
 @media (max-width: 480px) {
     .bio-content {
+    font-family: 'Segoe UI', Arial, sans-serif;
         font-size: 16px;
     }
     

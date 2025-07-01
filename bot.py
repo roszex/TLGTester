@@ -99,6 +99,13 @@ async def handle_webapp_data(message: types.Message):
         pass
 
 async def main():
+    # Удаляем webhook перед запуском polling
+    try:
+        await bot.delete_webhook(drop_pending_updates=True)
+        print("Webhook удален, запускаем polling...")
+    except Exception as e:
+        print(f"Ошибка при удалении webhook: {e}")
+    
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

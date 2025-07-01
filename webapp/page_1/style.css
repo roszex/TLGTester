@@ -27,6 +27,18 @@ body {
     -webkit-overflow-scrolling: auto;
 }
 
+/* Невидимая прокручиваемая область для предотвращения закрытия */
+.scroll-buffer {
+    position: fixed;
+    top: -200px; /* Невидимая область выше экрана */
+    left: 0;
+    width: 100%;
+    height: 200px;
+    background: transparent;
+    z-index: 999;
+    pointer-events: none; /* Не блокирует взаимодействие */
+}
+
 /* Статичная челка сверху */
 .static-header {
     position: fixed;

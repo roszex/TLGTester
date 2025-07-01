@@ -128,7 +128,8 @@ function preventAppClose() {
         const deltaX = Math.abs(currentX - startX);
         
         // Если пользователь находится в верхней части страницы и свайпает вниз
-        if (window.scrollY <= 0 && deltaY > 0) {
+        // Теперь у нас есть scroll-buffer, поэтому проверяем только если мы выше него
+        if (window.scrollY <= -200 && deltaY > 0) {
             // Блокируем свайп вниз для закрытия приложения
             e.preventDefault();
             e.stopPropagation();

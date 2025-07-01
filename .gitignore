@@ -48,5 +48,3 @@ Thumbs.db
 *.sqlite3
 
 # Sensitive files
-owners.txt
-owners.json 

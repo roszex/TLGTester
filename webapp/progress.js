@@ -46,8 +46,8 @@ class ProgressManager {
         console.log('ProgressManager: Telegram =', this.isTelegram);
         console.log('ProgressManager: Server URL =', this.serverUrl);
         
-        // Восстанавливаем прогресс при загрузке
-        this.restoreProgressOnLoad();
+        // НЕ восстанавливаем прогресс при загрузке автоматически
+        // Это будет делаться только при явном вызове
     }
     
     // Инициализация Telegram WebApp для полноэкранного режима
@@ -275,8 +275,11 @@ class ProgressManager {
     async restoreProgressOnLoad() {
         console.log('ProgressManager: Восстанавливаем прогресс при загрузке...');
         
-        // Если мы на первой странице, проверяем есть ли сохраненный прогресс
+        // Получаем текущую страницу
         const currentPage = this.getCurrentPage();
+        console.log('ProgressManager: Текущая страница:', currentPage);
+        
+        // Если мы на первой странице, проверяем есть ли сохраненный прогресс
         if (currentPage === 1) {
             const savedProgress = await this.getSavedProgress();
             

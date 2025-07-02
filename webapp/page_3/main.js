@@ -9,7 +9,6 @@ window.addEventListener('load', async function() {
     // Устанавливаем текущую дату
     const currentDate = new Date().toLocaleDateString('ru-RU');
 
-
 // Функция для предотвращения закрытия приложения свайпами
 function preventAppClose() {
     let startY = 0;
@@ -100,8 +99,48 @@ function preventAppClose() {
     }
 });
 
+// Функция для показа попапа сохранения
+function showSavePopup() {
+    const popup = document.getElementById('savePopup');
+    popup.classList.add('show');
+}
+
+// Функция для скрытия попапа сохранения
+function hideSavePopup() {
+    const popup = document.getElementById('savePopup');
+    popup.classList.remove('show');
+}
+
+// Функция для проверки сохранения данных в базе
+async function checkDataSaved(userId, maxAttempts = 30) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            const response = await fetch(`https://emelyanovtgbot-webapp-production.up.railway.app/api/get_progress/${encodeURIComponent(userId)}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                // Проверяем, что данные формы сохранены (current_page = 4 означает, что форма сохранена)
+                if (data.current_page === 4 && data.question_1 && data.question_2) {
+                    console.log('Данные успешно сохранены в базе данных');
+                    return true;
+                }
+            }
+            
+            console.log(`Попытка ${attempt}/${maxAttempts}: данные еще не сохранены, ждем...`);
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Ждем 1 секунду
+        } catch (error) {
+            console.error(`Ошибка при проверке сохранения (попытка ${attempt}):`, error);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+    }
+    
+    console.log('Превышено время ожидания сохранения данных');
+    return false;
+}
+
 // Обработчик отправки формы
 document.getElementById('submitBtn').addEventListener('click', async function() {
+    const submitBtn = document.getElementById('submitBtn');
     const form = document.getElementById('contactForm');
     
     // Проверяем валидность формы
@@ -109,6 +148,10 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
         form.reportValidity();
         return;
     }
+    
+    // Блокируем кнопку и показываем попап
+    submitBtn.disabled = true;
+    showSavePopup();
     
     // Собираем данные формы
     const formData = {
@@ -130,25 +173,45 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
             console.log('Результат сохранения формы:', success);
             
             if (success) {
-                // Анимация перехода
-                const container = document.querySelector('.container');
-                container.classList.add('wind-transition');
-                // Переходим на следующую страницу
-                setTimeout(() => {
-                    const currentUrl = window.location.href;
-                    const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-                    const newUrl = baseUrl + '/../page_4/index.html?user_id=' + window.progressManager.userId;
-                    console.log('Navigating to:', newUrl);
-                    window.location.href = newUrl;
-                }, 500);
+                // Ждем подтверждения сохранения в базе данных
+                const dataSaved = await checkDataSaved(window.progressManager.userId);
+                
+                if (dataSaved) {
+                    // Скрываем попап
+                    hideSavePopup();
+                    
+                    // Анимация перехода
+                    const container = document.querySelector('.container');
+                    container.classList.add('wind-transition');
+                    
+                    // Переходим на следующую страницу
+                    setTimeout(() => {
+                        const currentUrl = window.location.href;
+                        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
+                        const newUrl = baseUrl + '/../page_4/index.html?user_id=' + window.progressManager.userId;
+                        console.log('Navigating to:', newUrl);
+                        window.location.href = newUrl;
+                    }, 500);
+                } else {
+                    // Если данные не сохранились, показываем ошибку
+                    hideSavePopup();
+                    submitBtn.disabled = false;
+                    alert('Ошибка при сохранении данных. Попробуйте еще раз.');
+                }
             } else {
+                hideSavePopup();
+                submitBtn.disabled = false;
                 alert('Ошибка при сохранении данных. Попробуйте еще раз.');
             }
         } catch (error) {
             console.error('Ошибка при сохранении формы:', error);
+            hideSavePopup();
+            submitBtn.disabled = false;
             alert('Ошибка при сохранении данных: ' + error.message);
         }
     } else {
+        hideSavePopup();
+        submitBtn.disabled = false;
         alert('Ошибка: ProgressManager не загружен');
     }
 }); 

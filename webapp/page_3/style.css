@@ -260,9 +260,72 @@ html {
 }
 
 .lets-go:active {
-    background: #eee;
-    color: #000;
     transform: scale(0.98);
+    background: #0056b3;
+}
+
+/* Стили для попапа сохранения */
+.save-popup {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    border: 2px solid #007bff;
+    border-radius: 15px;
+    padding: 20px;
+    z-index: 10000;
+    transition: bottom 0.3s ease-in-out;
+    min-width: 280px;
+    max-width: 320px;
+}
+
+.save-popup.show {
+    bottom: 30px;
+}
+
+.save-popup-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.save-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #007bff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.save-text {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Стили для неактивной кнопки */
+.lets-go:disabled {
+    background: #666;
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.lets-go:disabled:hover {
+    background: #666;
+    transform: none;
+}
+
+.lets-go:disabled:active {
+    transform: none;
+    background: #666;
 }
 
 @media (max-width: 480px) {

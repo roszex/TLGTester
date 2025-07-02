@@ -79,11 +79,14 @@ function preloadImages() {
 }
 
 // Инициализация при загрузке страницы
-window.addEventListener('load', function() {
+window.addEventListener('load', async function() {
     // Инициализируем Telegram WebApp (теперь через ProgressManager)
     if (window.progressManager) {
         // ProgressManager уже инициализировал WebApp
         console.log('WebApp инициализирован через ProgressManager');
+        
+        // Восстанавливаем прогресс при загрузке первой страницы
+        await window.progressManager.restoreProgressOnLoad();
     } else {
         // Fallback инициализация
         initTelegramWebApp();
@@ -96,9 +99,12 @@ window.addEventListener('load', function() {
     preloadImages();
     setTimeout(forceLoadImages, 100);
     
-    // Принудительно сохраняем текущую страницу
+    // Принудительно сохраняем текущую страницу только если мы остались на первой
     if (window.progressManager) {
-        window.progressManager.savePage(1);
+        const currentPage = window.progressManager.getCurrentPage();
+        if (currentPage === 1) {
+            window.progressManager.savePage(1);
+        }
     }
 });
 

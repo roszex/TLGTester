@@ -143,21 +143,13 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
     console.log('Данные формы:', formData);
     console.log('ProgressManager доступен:', !!window.progressManager);
     console.log('User ID:', window.progressManager ? window.progressManager.userId : 'неизвестен');
-    console.log('Server URL:', window.progressManager ? window.progressManager.serverUrl : 'неизвестен');
     
     try {
         // Сохраняем данные формы
         if (window.progressManager) {
             console.log('Начинаем сохранение через ProgressManager...');
-            const result = await window.progressManager.saveFormData(formData);
-            console.log('Результат сохранения:', result);
-            
-            if (result) {
-                console.log('✅ Данные успешно сохранены!');
-            } else {
-                console.log('❌ Ошибка при сохранении данных');
-                throw new Error('Ошибка при сохранении данных');
-            }
+            await window.progressManager.saveFormData(formData);
+            console.log('✅ Данные отправлены на сервер');
         } else {
             console.log('❌ ProgressManager недоступен');
             throw new Error('ProgressManager недоступен');

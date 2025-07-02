@@ -8,7 +8,15 @@ window.addEventListener('load', async function() {
     
     // Устанавливаем текущую дату
     const currentDate = new Date().toLocaleDateString('ru-RU');
-    document.getElementById('currentDate').textContent = currentDate;
+    console.log('Устанавливаем дату:', currentDate);
+    
+    const dateElement = document.getElementById('currentDate');
+    if (dateElement) {
+        dateElement.textContent = currentDate;
+        console.log('Дата установлена успешно');
+    } else {
+        console.error('Элемент currentDate не найден!');
+    }
     
     // Блокируем свайпы для закрытия приложения
     preventAppClose();

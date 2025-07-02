@@ -45,6 +45,8 @@ function preloadImages() {
 
 // Инициализация при загрузке страницы
 window.addEventListener('load', function() {
+    console.log('=== ЗАГРУЗКА 5-Й СТРАНИЦЫ ===');
+    
     // Блокируем свайпы для закрытия приложения
     preventAppClose();
     // Инициализируем Telegram WebApp
@@ -56,7 +58,11 @@ window.addEventListener('load', function() {
     
     // Принудительно сохраняем текущую страницу
     if (window.progressManager) {
+        console.log('ProgressManager доступен, сохраняем страницу 5...');
         window.progressManager.savePage(5);
+        console.log('Сохранение страницы 5 завершено');
+    } else {
+        console.error('ProgressManager недоступен на 5-й странице!');
     }
 });
 

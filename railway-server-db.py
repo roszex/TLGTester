@@ -223,15 +223,13 @@ def get_or_create_user(user_id):
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         # Проверяем, существует ли пользователь
+        logger.info(f"Checking if user {user_id} exists...")
         cursor.execute('SELECT * FROM users WHERE username = %s', (user_id,))
         user = cursor.fetchone()
         
         if not user:
-            # Перед созданием нового пользователя оптимизируем счётчик ID
-            # Это гарантирует, что ID будет близок к количеству пользователей
-            optimize_id_sequence()
-            
-            # Создаем нового пользователя
+            logger.info(f"User {user_id} does not exist, creating new user...")
+            # Создаем нового пользователя без оптимизации ID
             cursor.execute('''
                 INSERT INTO users (username, current_page)
                 VALUES (%s, 1)
@@ -248,6 +246,8 @@ def get_or_create_user(user_id):
         return user
     except Exception as e:
         logger.error(f"Error getting/creating user {user_id}: {e}")
+        logger.error(f"Exception type: {type(e)}")
+        logger.error(f"Exception details: {str(e)}")
         if conn:
             conn.rollback()
             conn.close()
@@ -387,22 +387,33 @@ def get_users():
 @app.route('/api/save_form_data', methods=['POST'])
 def save_form_data():
     try:
+        logger.info("=== SAVE FORM DATA API CALL ===")
         data = request.get_json()
         user_id = data.get('user_id')
         form_data = data.get('form_data')
         
+        logger.info(f"Received data - user_id: {user_id}, form_data: {form_data}")
+        
         if not user_id or not form_data:
+            logger.error("Missing data in request")
             return jsonify({'error': 'Missing data'}), 400
         
         # Получаем или создаем пользователя
+        logger.info(f"Getting or creating user: {user_id}")
         user = get_or_create_user(user_id)
+        
         if not user:
+            logger.error(f"Failed to create user: {user_id}")
             return jsonify({'error': 'Failed to create user'}), 500
         
+        logger.info(f"User created/found successfully: {user}")
+        
         # Обновляем данные формы (сохраняем текущую страницу как 4)
+        logger.info(f"Updating user progress for {user_id}")
         success = update_user_progress(user_id, 4, form_data)
         
         if success:
+            logger.info(f"Form data saved successfully for user {user_id}")
             notify_owners_async(user['id'], user['username'], form_data)
             return jsonify({
                 'message': 'Form data saved successfully', 
@@ -410,10 +421,13 @@ def save_form_data():
                 'form_data': form_data
             })
         else:
+            logger.error(f"Failed to save form data for user {user_id}")
             return jsonify({'error': 'Failed to save form data'}), 500
             
     except Exception as e:
         logger.error(f"Error in save_form_data: {e}")
+        logger.error(f"Exception type: {type(e)}")
+        logger.error(f"Exception details: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/api/save_progress', methods=['POST'])

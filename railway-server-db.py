@@ -13,6 +13,7 @@ import logging
 import threading
 import requests
 import subprocess
+import time
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -557,6 +558,87 @@ def get_id_stats():
     except Exception as e:
         logger.error(f"Error getting ID stats: {e}")
         return jsonify({'error': 'Failed to get ID stats'}), 500
+
+@app.route('/api/test_db', methods=['GET'])
+def test_database():
+    """Тестовый endpoint для проверки состояния базы данных"""
+    try:
+        logger.info("=== TESTING DATABASE ===")
+        
+        # Проверяем подключение
+        conn = get_db_connection()
+        if not conn:
+            logger.error("Cannot connect to database")
+            return jsonify({'error': 'Database connection failed'}), 500
+        
+        cursor = conn.cursor()
+        
+        # Проверяем, существует ли таблица
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables 
+                WHERE table_name = 'users'
+            );
+        """)
+        table_exists = cursor.fetchone()[0]
+        logger.info(f"Table 'users' exists: {table_exists}")
+        
+        if not table_exists:
+            logger.info("Creating table 'users'...")
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    username VARCHAR(100) UNIQUE,
+                    question_1 TEXT,
+                    question_2 TEXT,
+                    question_3 TEXT,
+                    question_4 TEXT,
+                    question_5 TEXT,
+                    current_page INTEGER DEFAULT 1
+                )
+            ''')
+            conn.commit()
+            logger.info("Table 'users' created successfully")
+        
+        # Проверяем количество пользователей
+        cursor.execute('SELECT COUNT(*) FROM users')
+        user_count = cursor.fetchone()[0]
+        logger.info(f"Current user count: {user_count}")
+        
+        # Пробуем создать тестового пользователя
+        test_user_id = f"test_user_{int(time.time())}"
+        logger.info(f"Trying to create test user: {test_user_id}")
+        
+        cursor.execute('''
+            INSERT INTO users (username, current_page)
+            VALUES (%s, 1)
+            RETURNING id
+        ''', (test_user_id,))
+        
+        new_user_id = cursor.fetchone()[0]
+        logger.info(f"Test user created with ID: {new_user_id}")
+        
+        # Удаляем тестового пользователя
+        cursor.execute('DELETE FROM users WHERE username = %s', (test_user_id,))
+        conn.commit()
+        logger.info(f"Test user deleted")
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify({
+            'status': 'success',
+            'table_exists': table_exists,
+            'user_count': user_count,
+            'test_user_created': True,
+            'message': 'Database is working correctly'
+        })
+        
+    except Exception as e:
+        logger.error(f"Database test error: {e}")
+        logger.error(f"Exception type: {type(e)}")
+        logger.error(f"Exception details: {str(e)}")
+        return jsonify({'error': f'Database test failed: {str(e)}'}), 500
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 8001))

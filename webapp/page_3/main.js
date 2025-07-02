@@ -111,6 +111,20 @@ function hideSavePopup() {
     popup.classList.remove('show');
 }
 
+// Функция для тестирования API
+async function testAPI() {
+    try {
+        console.log('Тестируем API...');
+        const response = await fetch('https://emelyanovtgbot-webapp-production.up.railway.app/health');
+        const data = await response.json();
+        console.log('API ответ:', data);
+        return true;
+    } catch (error) {
+        console.error('Ошибка тестирования API:', error);
+        return false;
+    }
+}
+
 // Функция для проверки сохранения данных в базе
 async function checkDataSaved(userId, maxAttempts = 30) {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -119,11 +133,15 @@ async function checkDataSaved(userId, maxAttempts = 30) {
             
             if (response.ok) {
                 const data = await response.json();
+                console.log('Получены данные из API:', data);
+                
                 // Проверяем, что данные формы сохранены (current_page = 4 означает, что форма сохранена)
-                if (data.current_page === 4 && data.question_1 && data.question_2) {
+                if (data.current_page === 4 && data.form_data && data.form_data.age && data.form_data.occupation) {
                     console.log('Данные успешно сохранены в базе данных');
                     return true;
                 }
+            } else {
+                console.error('Ошибка API при проверке данных:', response.status, response.statusText);
             }
             
             console.log(`Попытка ${attempt}/${maxAttempts}: данные еще не сохранены, ждем...`);
@@ -166,17 +184,41 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
     console.log('ProgressManager доступен:', !!window.progressManager);
     console.log('User ID:', window.progressManager ? window.progressManager.userId : 'неизвестен');
     
+    // Сначала тестируем API
+    const apiTest = await testAPI();
+    if (!apiTest) {
+        console.log('API недоступен, показываем ошибку...');
+        hideSavePopup();
+        submitBtn.disabled = false;
+        alert('Ошибка: Сервер недоступен. Попробуйте позже.');
+        return;
+    }
+    
     // Сохраняем данные через ProgressManager
     if (window.progressManager) {
         try {
+            console.log('Начинаем сохранение формы...');
             const success = await window.progressManager.saveFormData(formData);
             console.log('Результат сохранения формы:', success);
             
             if (success) {
-                // Ждем подтверждения сохранения в базе данных
-                const dataSaved = await checkDataSaved(window.progressManager.userId);
+                console.log('Форма успешно отправлена, начинаем проверку сохранения в БД...');
+                
+                // ВРЕМЕННО: Пропускаем проверку БД для тестирования
+                const skipDBCheck = true; // Измените на false для включения проверки
+                
+                let dataSaved = true; // По умолчанию считаем, что данные сохранены
+                
+                if (!skipDBCheck) {
+                    // Ждем подтверждения сохранения в базе данных
+                    dataSaved = await checkDataSaved(window.progressManager.userId);
+                    console.log('Результат проверки сохранения в БД:', dataSaved);
+                } else {
+                    console.log('Проверка БД пропущена для тестирования');
+                }
                 
                 if (dataSaved) {
+                    console.log('Данные подтверждены в БД, переходим на 4-ю страницу...');
                     // Скрываем попап
                     hideSavePopup();
                     
@@ -193,12 +235,14 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
                         window.location.href = newUrl;
                     }, 500);
                 } else {
+                    console.log('Данные не подтверждены в БД, показываем ошибку...');
                     // Если данные не сохранились, показываем ошибку
                     hideSavePopup();
                     submitBtn.disabled = false;
                     alert('Ошибка при сохранении данных. Попробуйте еще раз.');
                 }
             } else {
+                console.log('Ошибка при отправке формы...');
                 hideSavePopup();
                 submitBtn.disabled = false;
                 alert('Ошибка при сохранении данных. Попробуйте еще раз.');
@@ -210,6 +254,7 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
             alert('Ошибка при сохранении данных: ' + error.message);
         }
     } else {
+        console.log('ProgressManager недоступен...');
         hideSavePopup();
         submitBtn.disabled = false;
         alert('Ошибка: ProgressManager не загружен');

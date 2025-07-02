@@ -115,8 +115,6 @@ function hideSavePopup() {
     }
 }
 
-
-
 // Обработчик отправки формы
 document.getElementById('submitBtn').addEventListener('click', async function() {
     const submitBtn = document.getElementById('submitBtn');
@@ -141,22 +139,39 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
         teamwork: document.getElementById('teamwork').value
     };
     
-    console.log('Отправляем данные формы:', formData);
+    console.log('=== ОТПРАВКА ФОРМЫ ===');
+    console.log('Данные формы:', formData);
+    console.log('ProgressManager доступен:', !!window.progressManager);
+    console.log('User ID:', window.progressManager ? window.progressManager.userId : 'неизвестен');
+    console.log('Server URL:', window.progressManager ? window.progressManager.serverUrl : 'неизвестен');
     
     try {
         // Сохраняем данные формы
         if (window.progressManager) {
-            await window.progressManager.saveFormData(formData);
-            console.log('Данные формы сохранены через ProgressManager');
+            console.log('Начинаем сохранение через ProgressManager...');
+            const result = await window.progressManager.saveFormData(formData);
+            console.log('Результат сохранения:', result);
+            
+            if (result) {
+                console.log('✅ Данные успешно сохранены!');
+            } else {
+                console.log('❌ Ошибка при сохранении данных');
+                throw new Error('Ошибка при сохранении данных');
+            }
+        } else {
+            console.log('❌ ProgressManager недоступен');
+            throw new Error('ProgressManager недоступен');
         }
         
         // Ждем немного для показа попапа
+        console.log('Ждем 2 секунды для показа попапа...');
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Скрываем попап
         hideSavePopup();
         
         // Переходим на следующую страницу
+        console.log('Переходим на следующую страницу...');
         if (window.progressManager) {
             window.progressManager.goToNextPage();
         } else {
@@ -165,13 +180,13 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
         }
         
     } catch (error) {
-        console.error('Ошибка при сохранении формы:', error);
+        console.error('❌ ОШИБКА ПРИ СОХРАНЕНИИ:', error);
         
         // Скрываем попап
         hideSavePopup();
         
         // Показываем ошибку пользователю
-        alert('Произошла ошибка при сохранении данных. Попробуйте еще раз.');
+        alert('Произошла ошибка при сохранении данных: ' + error.message);
         
         // Разблокируем кнопку
         submitBtn.disabled = false;

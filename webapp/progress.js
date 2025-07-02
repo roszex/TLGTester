@@ -144,18 +144,20 @@ class ProgressManager {
     
     async saveFormData(formData) {
         if (!this.userId) {
-            console.log('ProgressManager: Нет user ID, пропускаем сохранение формы');
+            console.log('ProgressManager: ❌ Нет user ID, пропускаем сохранение формы');
             return false;
         }
         
-        console.log('ProgressManager: Сохраняем форму для пользователя', this.userId, formData);
+        console.log('ProgressManager: 🔄 Сохраняем форму для пользователя', this.userId);
+        console.log('ProgressManager: 📝 Данные формы:', formData);
         
         try {
             const requestBody = {
                 user_id: this.userId,
                 form_data: formData
             };
-            console.log('ProgressManager: Отправляем данные формы:', requestBody);
+            console.log('ProgressManager: 📤 Отправляем запрос на сервер:', requestBody);
+            console.log('ProgressManager: 🌐 URL:', `${this.serverUrl}/api/save_form_data`);
             
             const response = await fetch(`${this.serverUrl}/api/save_form_data`, {
                 method: 'POST',
@@ -165,19 +167,24 @@ class ProgressManager {
                 body: JSON.stringify(requestBody)
             });
             
-            console.log('ProgressManager: Получен ответ формы:', response.status, response.statusText);
+            console.log('ProgressManager: 📥 Получен ответ от сервера:', response.status, response.statusText);
+            console.log('ProgressManager: 📋 Headers ответа:', Object.fromEntries(response.headers.entries()));
             
             if (response.ok) {
                 const responseData = await response.json();
-                console.log('ProgressManager: Форма сохранена, ответ:', responseData);
+                console.log('ProgressManager: ✅ Форма успешно сохранена!');
+                console.log('ProgressManager: 📄 Ответ сервера:', responseData);
                 return true;
             } else {
                 const errorText = await response.text();
-                console.error('ProgressManager: Ошибка сохранения формы', response.status, errorText);
+                console.error('ProgressManager: ❌ Ошибка сохранения формы');
+                console.error('ProgressManager: 📊 Статус:', response.status);
+                console.error('ProgressManager: 📝 Текст ошибки:', errorText);
                 return false;
             }
         } catch (error) {
-            console.error('ProgressManager: Ошибка сети при сохранении формы', error);
+            console.error('ProgressManager: ❌ Ошибка сети при сохранении формы');
+            console.error('ProgressManager: 🐛 Детали ошибки:', error);
             return false;
         }
     }

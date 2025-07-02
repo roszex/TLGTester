@@ -1,6 +1,43 @@
 // Подключаем ProgressManager
 // <script src="../progress.js"></script> должен быть в HTML
 
+// Инициализация Telegram WebApp для полноэкранного режима
+function initTelegramWebApp() {
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        
+        try {
+            // Расширяем WebApp на весь экран
+            tg.expand();
+            
+            // Запрашиваем полноэкранный режим если доступен
+            if (tg.requestFullscreen) {
+                tg.requestFullscreen();
+            }
+            
+            // Устанавливаем цвета темы для соответствия приложению
+            tg.setHeaderColor('#000000');
+            tg.setBackgroundColor('#000000');
+            
+            // Отключаем подтверждение закрытия для предотвращения сообщения "изменения могут не сохраниться"
+            if (tg.enableClosingConfirmation) {
+                // Не включаем подтверждение закрытия
+            }
+            
+            // Устанавливаем основную кнопку если нужно
+            if (tg.MainButton) {
+                tg.MainButton.hide();
+            }
+            
+            console.log('Telegram WebApp инициализирован успешно в полноэкранном режиме');
+        } catch (error) {
+            console.error('Ошибка инициализации Telegram WebApp:', error);
+        }
+    } else {
+        console.log('Telegram WebApp недоступен - запуск в режиме браузера');
+    }
+}
+
 // Определяем базовый путь к картинкам (теперь относительно текущего домена)
 let baseImgUrl = window.location.origin + "/";
 
@@ -46,6 +83,9 @@ function preloadImages() {
 // Инициализация при загрузке страницы
 window.addEventListener('load', function() {
     console.log('=== ЗАГРУЗКА 5-Й СТРАНИЦЫ ===');
+    console.log('URL:', window.location.href);
+    console.log('ProgressManager доступен:', !!window.progressManager);
+    console.log('User ID:', window.progressManager ? window.progressManager.userId : 'неизвестен');
     
     // Блокируем свайпы для закрытия приложения
     preventAppClose();
@@ -59,8 +99,12 @@ window.addEventListener('load', function() {
     // Принудительно сохраняем текущую страницу
     if (window.progressManager) {
         console.log('ProgressManager доступен, сохраняем страницу 5...');
-        window.progressManager.savePage(5);
-        console.log('Сохранение страницы 5 завершено');
+        try {
+            window.progressManager.savePage(5);
+            console.log('Сохранение страницы 5 завершено');
+        } catch (error) {
+            console.error('Ошибка при сохранении страницы 5:', error);
+        }
     } else {
         console.error('ProgressManager недоступен на 5-й странице!');
     }
@@ -91,8 +135,6 @@ function goToNextPage() {
         }
     }, 500);
 }
-
-
 
 // Функция для предотвращения закрытия приложения свайпами
 function preventAppClose() {

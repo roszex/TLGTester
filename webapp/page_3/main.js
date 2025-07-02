@@ -102,59 +102,20 @@ function preventAppClose() {
 // Функция для показа попапа сохранения
 function showSavePopup() {
     const popup = document.getElementById('savePopup');
-    popup.classList.add('show');
+    if (popup) {
+        popup.classList.add('show');
+    }
 }
 
 // Функция для скрытия попапа сохранения
 function hideSavePopup() {
     const popup = document.getElementById('savePopup');
-    popup.classList.remove('show');
-}
-
-// Функция для тестирования API
-async function testAPI() {
-    try {
-        console.log('Тестируем API...');
-        const response = await fetch('https://emelyanovtgbot-webapp-production.up.railway.app/health');
-        const data = await response.json();
-        console.log('API ответ:', data);
-        return true;
-    } catch (error) {
-        console.error('Ошибка тестирования API:', error);
-        return false;
+    if (popup) {
+        popup.classList.remove('show');
     }
 }
 
-// Функция для проверки сохранения данных в базе
-async function checkDataSaved(userId, maxAttempts = 30) {
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-            const response = await fetch(`https://emelyanovtgbot-webapp-production.up.railway.app/api/get_progress/${encodeURIComponent(userId)}`);
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Получены данные из API:', data);
-                
-                // Проверяем, что данные формы сохранены (current_page = 4 означает, что форма сохранена)
-                if (data.current_page === 4 && data.form_data && data.form_data.age && data.form_data.occupation) {
-                    console.log('Данные успешно сохранены в базе данных');
-                    return true;
-                }
-            } else {
-                console.error('Ошибка API при проверке данных:', response.status, response.statusText);
-            }
-            
-            console.log(`Попытка ${attempt}/${maxAttempts}: данные еще не сохранены, ждем...`);
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Ждем 1 секунду
-        } catch (error) {
-            console.error(`Ошибка при проверке сохранения (попытка ${attempt}):`, error);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-    }
-    
-    console.log('Превышено время ожидания сохранения данных');
-    return false;
-}
+
 
 // Обработчик отправки формы
 document.getElementById('submitBtn').addEventListener('click', async function() {
@@ -181,82 +142,38 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
     };
     
     console.log('Отправляем данные формы:', formData);
-    console.log('ProgressManager доступен:', !!window.progressManager);
-    console.log('User ID:', window.progressManager ? window.progressManager.userId : 'неизвестен');
     
-    // Сначала тестируем API
-    const apiTest = await testAPI();
-    if (!apiTest) {
-        console.log('API недоступен, показываем ошибку...');
-        hideSavePopup();
-        submitBtn.disabled = false;
-        alert('Ошибка: Сервер недоступен. Попробуйте позже.');
-        return;
-    }
-    
-    // Сохраняем данные через ProgressManager
-    if (window.progressManager) {
-        try {
-            console.log('Начинаем сохранение формы...');
-            const success = await window.progressManager.saveFormData(formData);
-            console.log('Результат сохранения формы:', success);
-            
-            if (success) {
-                console.log('Форма успешно отправлена, начинаем проверку сохранения в БД...');
-                
-                // ВРЕМЕННО: Пропускаем проверку БД для тестирования
-                const skipDBCheck = true; // Измените на false для включения проверки
-                
-                let dataSaved = true; // По умолчанию считаем, что данные сохранены
-                
-                if (!skipDBCheck) {
-                    // Ждем подтверждения сохранения в базе данных
-                    dataSaved = await checkDataSaved(window.progressManager.userId);
-                    console.log('Результат проверки сохранения в БД:', dataSaved);
-                } else {
-                    console.log('Проверка БД пропущена для тестирования');
-                }
-                
-                if (dataSaved) {
-                    console.log('Данные подтверждены в БД, переходим на 4-ю страницу...');
-                    // Скрываем попап
-                    hideSavePopup();
-                    
-                    // Анимация перехода
-                    const container = document.querySelector('.container');
-                    container.classList.add('wind-transition');
-                    
-                    // Переходим на следующую страницу
-                    setTimeout(() => {
-                        const currentUrl = window.location.href;
-                        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-                        const newUrl = baseUrl + '/../page_4/index.html?user_id=' + window.progressManager.userId;
-                        console.log('Navigating to:', newUrl);
-                        window.location.href = newUrl;
-                    }, 500);
-                } else {
-                    console.log('Данные не подтверждены в БД, показываем ошибку...');
-                    // Если данные не сохранились, показываем ошибку
-                    hideSavePopup();
-                    submitBtn.disabled = false;
-                    alert('Ошибка при сохранении данных. Попробуйте еще раз.');
-                }
-            } else {
-                console.log('Ошибка при отправке формы...');
-                hideSavePopup();
-                submitBtn.disabled = false;
-                alert('Ошибка при сохранении данных. Попробуйте еще раз.');
-            }
-        } catch (error) {
-            console.error('Ошибка при сохранении формы:', error);
-            hideSavePopup();
-            submitBtn.disabled = false;
-            alert('Ошибка при сохранении данных: ' + error.message);
+    try {
+        // Сохраняем данные формы
+        if (window.progressManager) {
+            await window.progressManager.saveFormData(formData);
+            console.log('Данные формы сохранены через ProgressManager');
         }
-    } else {
-        console.log('ProgressManager недоступен...');
+        
+        // Ждем немного для показа попапа
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Скрываем попап
         hideSavePopup();
+        
+        // Переходим на следующую страницу
+        if (window.progressManager) {
+            window.progressManager.goToNextPage();
+        } else {
+            // Fallback
+            window.location.href = '../page_4/index.html';
+        }
+        
+    } catch (error) {
+        console.error('Ошибка при сохранении формы:', error);
+        
+        // Скрываем попап
+        hideSavePopup();
+        
+        // Показываем ошибку пользователю
+        alert('Произошла ошибка при сохранении данных. Попробуйте еще раз.');
+        
+        // Разблокируем кнопку
         submitBtn.disabled = false;
-        alert('Ошибка: ProgressManager не загружен');
     }
 }); 

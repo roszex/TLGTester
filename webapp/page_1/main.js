@@ -99,13 +99,8 @@ window.addEventListener('load', async function() {
     preloadImages();
     setTimeout(forceLoadImages, 100);
     
-    // Принудительно сохраняем текущую страницу только если мы остались на первой
-    if (window.progressManager) {
-        const currentPage = window.progressManager.getCurrentPage();
-        if (currentPage === 1) {
-            window.progressManager.savePage(1);
-        }
-    }
+    // НЕ сохраняем автоматически первую страницу - это создает проблемы
+    // Прогресс будет сохранен только при явном переходе пользователя
 });
 
 // Функция для предотвращения закрытия приложения свайпами

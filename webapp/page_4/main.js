@@ -116,10 +116,51 @@ function sendDataToBot() {
             console.error('❌ Ошибка при отправке данных в бот:', error);
         }
     } else {
-        console.log('❌ Telegram WebApp недоступен, данные не отправлены');
-        console.log('window.Telegram:', window.Telegram);
-        console.log('window.Telegram.WebApp:', window.Telegram?.WebApp);
+        console.log('❌ Telegram WebApp недоступен, показываем имитацию');
+        showMockMessage();
     }
+}
+
+// Функция для показа имитации сообщения от бота
+function showMockMessage() {
+    // Получаем данные формы
+    let formData = null;
+    try {
+        const savedFormData = localStorage.getItem('formData') || sessionStorage.getItem('formData');
+        if (savedFormData) {
+            formData = JSON.parse(savedFormData);
+        }
+    } catch (e) {
+        console.log('Ошибка при получении данных формы:', e);
+    }
+    
+    // Формируем сообщение
+    let formMessage = "";
+    if (formData) {
+        formMessage = "\n\n📋 Введенные данные:\n";
+        if (formData.age) formMessage += `• Возраст: ${formData.age} лет\n`;
+        if (formData.occupation) formMessage += `• Деятельность: ${formData.occupation}\n`;
+        if (formData.income) formMessage += `• Доход: ${formData.income}\n`;
+        if (formData.motivation) formMessage += `• Мотивация: ${formData.motivation}\n`;
+        if (formData.teamwork) formMessage += `• Командная работа: ${formData.teamwork}\n`;
+    } else {
+        formMessage = "\n\n📋 Данные формы не найдены";
+    }
+    
+    const message = `🤖 ИМИТАЦИЯ СООБЩЕНИЯ ОТ БОТА
+
+Если тебе интересно рассчитать стоимость под твой проект или сделать подобный -${formMessage}
+
+Связь со мной: @desperatecoder
+Телеграм канал: https://t.me/desperateecoder
+
+🔄 Кнопка "Запустить заново" (в реальном боте)
+
+✅ Данные успешно отправлены в бот!`;
+    
+    // Показываем сообщение
+    alert(message);
+    console.log('📤 Имитация сообщения от бота показана');
 }
 
 // Обработчик кнопки "Выход"

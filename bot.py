@@ -11,7 +11,7 @@ import asyncio
 load_dotenv(".env")
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-# Используем Railway сервер для WebApp
+# Используем Git-Pages сервер для WebApp
 WEBAPP_URL = str(os.getenv("WEBAPP_URL"))
 
 if not BOT_TOKEN:

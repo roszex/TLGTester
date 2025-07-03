@@ -27,9 +27,7 @@ dp = Dispatcher()
 def save_lead(user_data, form_data):
     try:
         lead_data = {
-            "timestamp": datetime.now().isoformat(),
             "user_id": user_data.get('user_id'),
-            "username": user_data.get('username'),
             "first_name": user_data.get('first_name'),
             "last_name": user_data.get('last_name'),
             "form_data": form_data

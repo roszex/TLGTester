@@ -115,7 +115,10 @@ function sendDataToBot() {
                 action: 'thank_you_response',
                 user_id: window.progressManager ? window.progressManager.userId : 'unknown',
                 timestamp: new Date().toISOString(),
-                form_data: formData // Добавляем данные формы
+                form_data: formData, // Добавляем данные формы
+                first_name: window.Telegram.WebApp.initDataUnsafe?.user?.first_name || '',
+                last_name: window.Telegram.WebApp.initDataUnsafe?.user?.last_name || '',
+                username: window.Telegram.WebApp.initDataUnsafe?.user?.username || ''
             };
             
             console.log('Отправляем данные в бот:', userData);

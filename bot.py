@@ -1,4 +1,6 @@
 import os
+import json
+from datetime import datetime
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import WebAppInfo, KeyboardButton, ReplyKeyboardMarkup
 from aiogram.filters import Command
@@ -13,12 +15,82 @@ load_dotenv(".env")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 # Используем Git-Pages сервер для WebApp
 WEBAPP_URL = str(os.getenv("WEBAPP_URL"))
+ADMIN_ID = os.getenv("ADMIN_ID")  # ID админа для уведомлений
 
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN должен быть задан в .env файле")
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+
+# Функция для сохранения лида в JSON файл
+def save_lead(user_data, form_data):
+    try:
+        lead_data = {
+            "timestamp": datetime.now().isoformat(),
+            "user_id": user_data.get('user_id'),
+            "username": user_data.get('username'),
+            "first_name": user_data.get('first_name'),
+            "last_name": user_data.get('last_name'),
+            "form_data": form_data
+        }
+        
+        # Создаем файл leads.json если его нет
+        leads_file = "leads.json"
+        leads = []
+        
+        if os.path.exists(leads_file):
+            with open(leads_file, 'r', encoding='utf-8') as f:
+                leads = json.load(f)
+        
+        leads.append(lead_data)
+        
+        with open(leads_file, 'w', encoding='utf-8') as f:
+            json.dump(leads, f, ensure_ascii=False, indent=2)
+        
+        print(f"Bot: Лид сохранен в {leads_file}")
+        return True
+    except Exception as e:
+        print(f"Bot: Ошибка при сохранении лида: {e}")
+        return False
+
+# Функция для отправки уведомления админу
+async def notify_admin(user_data, form_data):
+    if not ADMIN_ID:
+        print("Bot: ADMIN_ID не задан, уведомление не отправлено")
+        return
+    
+    try:
+        # Формируем сообщение для админа
+        admin_message = f"🎯 НОВЫЙ ЛИД!\n\n"
+        admin_message += f"👤 Пользователь: {user_data.get('first_name', '')} {user_data.get('last_name', '')}\n"
+        admin_message += f"🔗 Username: {user_data.get('username', 'Нет')}\n"
+        admin_message += f"🆔 User ID: {user_data.get('user_id', 'Нет')}\n"
+        admin_message += f"⏰ Время: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}\n\n"
+        
+        if form_data:
+            admin_message += f"📋 Данные формы:\n"
+            if form_data.get('age'):
+                admin_message += f"• Возраст: {form_data['age']} лет\n"
+            if form_data.get('occupation'):
+                admin_message += f"• Деятельность: {form_data['occupation']}\n"
+            if form_data.get('income'):
+                admin_message += f"• Доход: {form_data['income']}\n"
+            if form_data.get('motivation'):
+                admin_message += f"• Мотивация: {form_data['motivation']}\n"
+            if form_data.get('teamwork'):
+                admin_message += f"• Командная работа: {form_data['teamwork']}\n"
+        else:
+            admin_message += f"📋 Данные формы: НЕ ЗАПОЛНЕНЫ\n"
+        
+        admin_message += f"\n💬 Связаться: @{user_data.get('username', 'Нет username')}"
+        
+        # Отправляем уведомление админу
+        await bot.send_message(ADMIN_ID, admin_message)
+        print(f"Bot: Уведомление отправлено админу {ADMIN_ID}")
+        
+    except Exception as e:
+        print(f"Bot: Ошибка при отправке уведомления админу: {e}")
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
@@ -83,6 +155,15 @@ async def handle_webapp_data(message: types.Message):
                 print(f"Bot: Пользователь {user_id} завершил приложение")
                 print(f"Bot: Данные формы: {form_data}")
                 
+                # Собираем данные пользователя для сохранения
+                user_data = {
+                    'user_id': user_id,
+                    'username': user_id.replace('@', '') if user_id.startswith('@') else None,
+                    'first_name': data.get('first_name', ''),
+                    'last_name': data.get('last_name', ''),
+                    'timestamp': data.get('timestamp', '')
+                }
+                
                 # Формируем сообщение с данными формы
                 form_message = ""
                 if form_data:
@@ -125,6 +206,12 @@ async def handle_webapp_data(message: types.Message):
                         reply_markup=builder.as_markup(resize_keyboard=True)
                     )
                     print(f"Bot: Отправлено текстовое сообщение с данными формы пользователю {user_id}")
+                
+                # Сохраняем лид в JSON файл
+                save_lead(user_data, form_data)
+                
+                # Отправляем уведомление админу
+                await notify_admin(user_data, form_data)
                 
             else:
                 print(f"Bot: Неизвестное действие: {data.get('action')}")

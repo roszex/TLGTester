@@ -71,6 +71,30 @@ function preventAppClose() {
     }, { passive: false });
 }
 
+// Функция для отправки данных в бот
+function sendDataToBot() {
+    if (window.Telegram && window.Telegram.WebApp) {
+        try {
+            const userData = {
+                action: 'thank_you_response',
+                user_id: window.progressManager ? window.progressManager.userId : 'unknown',
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('Отправляем данные в бот:', userData);
+            
+            // Отправляем данные через Telegram WebApp
+            window.Telegram.WebApp.sendData(JSON.stringify(userData));
+            
+            console.log('Данные успешно отправлены в бот');
+        } catch (error) {
+            console.error('Ошибка при отправке данных в бот:', error);
+        }
+    } else {
+        console.log('Telegram WebApp недоступен, данные не отправлены');
+    }
+}
+
 // Обработчик кнопки "Выход"
 document.getElementById('exitBtn').addEventListener('click', function() {
     const container = document.querySelector('.container');
@@ -80,12 +104,18 @@ document.getElementById('exitBtn').addEventListener('click', function() {
     
     // Ждём окончания анимации и закрываем приложение
     setTimeout(() => {
-        // Закрываем Telegram WebApp
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.close();
-        } else {
-            // Fallback - просто закрываем окно
-            window.close();
-        }
+        // Отправляем данные в бот перед закрытием
+        sendDataToBot();
+        
+        // Ждем немного для отправки данных
+        setTimeout(() => {
+            // Закрываем Telegram WebApp
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.close();
+            } else {
+                // Fallback - просто закрываем окно
+                window.close();
+            }
+        }, 500);
     }, 500);
 }); 

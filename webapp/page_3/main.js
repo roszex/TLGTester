@@ -82,6 +82,43 @@ window.addEventListener('load', async function() {
             if (savedProgress.form_data.teamwork) {
                 document.getElementById('teamwork').value = savedProgress.form_data.teamwork;
             }
+        } else {
+            // Пробуем восстановить из localStorage по user_id
+            try {
+                const userId = window.progressManager.userId;
+                const formDataKey = `formData_${userId}`;
+                
+                let savedFormData = localStorage.getItem(formDataKey) || sessionStorage.getItem(formDataKey);
+                
+                // Если не найдено по user_id, пробуем общий ключ
+                if (!savedFormData) {
+                    savedFormData = localStorage.getItem('formData') || sessionStorage.getItem('formData');
+                }
+                
+                if (savedFormData) {
+                    const formData = JSON.parse(savedFormData);
+                    console.log('Восстанавливаем данные формы из localStorage:', formData);
+                    
+                    // Заполняем поля формы
+                    if (formData.age) {
+                        document.getElementById('age').value = formData.age;
+                    }
+                    if (formData.occupation) {
+                        document.getElementById('occupation').value = formData.occupation;
+                    }
+                    if (formData.income) {
+                        document.getElementById('income').value = formData.income;
+                    }
+                    if (formData.motivation) {
+                        document.getElementById('motivation').value = formData.motivation;
+                    }
+                    if (formData.teamwork) {
+                        document.getElementById('teamwork').value = formData.teamwork;
+                    }
+                }
+            } catch (e) {
+                console.log('Ошибка при восстановлении данных из localStorage:', e);
+            }
         }
     }
     
@@ -139,9 +176,19 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
     try {
         // Сохраняем данные формы в localStorage для отправки в бот
         try {
+            // Получаем user_id для уникального ключа
+            const userId = window.progressManager ? window.progressManager.userId : 'unknown';
+            const formDataKey = `formData_${userId}`;
+            
+            localStorage.setItem(formDataKey, JSON.stringify(formData));
+            sessionStorage.setItem(formDataKey, JSON.stringify(formData));
+            
+            // Также сохраняем под общим ключом для совместимости
             localStorage.setItem('formData', JSON.stringify(formData));
             sessionStorage.setItem('formData', JSON.stringify(formData));
-            console.log('✅ Данные формы сохранены в localStorage и sessionStorage');
+            
+            console.log('✅ Данные формы сохранены с ключом:', formDataKey);
+            console.log('✅ Данные формы также сохранены под общим ключом');
         } catch (e) {
             console.error('❌ Ошибка при сохранении данных формы:', e);
         }

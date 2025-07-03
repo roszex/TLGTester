@@ -81,10 +81,24 @@ function sendDataToBot() {
             // Получаем данные формы из localStorage или sessionStorage
             let formData = null;
             try {
-                const savedFormData = localStorage.getItem('formData') || sessionStorage.getItem('formData');
+                // Сначала пытаемся получить данные по user_id
+                const userId = window.progressManager ? window.progressManager.userId : 'unknown';
+                const formDataKey = `formData_${userId}`;
+                
+                let savedFormData = localStorage.getItem(formDataKey) || sessionStorage.getItem(formDataKey);
+                
+                // Если не найдено по user_id, пробуем общий ключ
+                if (!savedFormData) {
+                    savedFormData = localStorage.getItem('formData') || sessionStorage.getItem('formData');
+                    console.log('Данные не найдены по user_id, пробуем общий ключ');
+                }
+                
                 if (savedFormData) {
                     formData = JSON.parse(savedFormData);
-                    console.log('Найдены сохраненные данные формы:', formData);
+                    console.log('Найдены сохраненные данные формы для пользователя:', userId);
+                    console.log('Данные формы:', formData);
+                } else {
+                    console.log('Данные формы не найдены ни по user_id, ни по общему ключу');
                 }
             } catch (e) {
                 console.log('Ошибка при получении данных формы:', e);
@@ -126,7 +140,17 @@ function showMockMessage() {
     // Получаем данные формы
     let formData = null;
     try {
-        const savedFormData = localStorage.getItem('formData') || sessionStorage.getItem('formData');
+        // Сначала пытаемся получить данные по user_id
+        const userId = window.progressManager ? window.progressManager.userId : 'unknown';
+        const formDataKey = `formData_${userId}`;
+        
+        let savedFormData = localStorage.getItem(formDataKey) || sessionStorage.getItem(formDataKey);
+        
+        // Если не найдено по user_id, пробуем общий ключ
+        if (!savedFormData) {
+            savedFormData = localStorage.getItem('formData') || sessionStorage.getItem('formData');
+        }
+        
         if (savedFormData) {
             formData = JSON.parse(savedFormData);
         }

@@ -61,29 +61,22 @@ async def notify_admin(user_data, form_data):
         return
     
     try:
-        # Формируем сообщение для админа
-        admin_message = f"🎯 НОВЫЙ ЛИД!\n\n"
-        admin_message += f"👤 Пользователь: {user_data.get('first_name', '')} {user_data.get('last_name', '')}\n"
-        admin_message += f"🔗 Username: {user_data.get('username', 'Нет')}\n"
-        admin_message += f"🆔 User ID: {user_data.get('user_id', 'Нет')}\n"
-        admin_message += f"⏰ Время: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}\n\n"
+        # Получаем номер лида из файла
+        leads_file = "leads.json"
+        lead_number = 1
+        if os.path.exists(leads_file):
+            with open(leads_file, 'r', encoding='utf-8') as f:
+                leads = json.load(f)
+                lead_number = len(leads)
         
-        if form_data:
-            admin_message += f"📋 Данные формы:\n"
-            if form_data.get('age'):
-                admin_message += f"• Возраст: {form_data['age']} лет\n"
-            if form_data.get('occupation'):
-                admin_message += f"• Деятельность: {form_data['occupation']}\n"
-            if form_data.get('income'):
-                admin_message += f"• Доход: {form_data['income']}\n"
-            if form_data.get('motivation'):
-                admin_message += f"• Мотивация: {form_data['motivation']}\n"
-            if form_data.get('teamwork'):
-                admin_message += f"• Командная работа: {form_data['teamwork']}\n"
-        else:
-            admin_message += f"📋 Данные формы: НЕ ЗАПОЛНЕНЫ\n"
+        # Формируем простое сообщение для админа
+        username = user_data.get('username', '')
+        if username and not username.startswith('@'):
+            username = '@' + username
         
-        admin_message += f"\n💬 Связаться: @{user_data.get('username', 'Нет username')}"
+        admin_message = f"🎯 Лид #{lead_number}\n"
+        admin_message += f"👤 {username}\n"
+        admin_message += f"⏰ {datetime.now().strftime('%d.%m %H:%M')}"
         
         # Отправляем уведомление админу
         await bot.send_message(ADMIN_ID, admin_message)

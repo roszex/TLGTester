@@ -72,7 +72,14 @@ function preventAppClose() {
 }
 
 // Функция для отправки данных в бот
+let dataSent = false; // Флаг для предотвращения двойной отправки
+
 function sendDataToBot() {
+    if (dataSent) {
+        console.log('Данные уже отправлены, пропускаем повторную отправку');
+        return;
+    }
+    
     console.log('=== ОТПРАВКА ДАННЫХ В БОТ ===');
     console.log('Telegram WebApp доступен:', !!(window.Telegram && window.Telegram.WebApp));
     
@@ -116,6 +123,7 @@ function sendDataToBot() {
             // Отправляем данные через Telegram WebApp
             window.Telegram.WebApp.sendData(JSON.stringify(userData));
             
+            dataSent = true; // Отмечаем, что данные отправлены
             console.log('✅ Данные успешно отправлены в бот');
             
             // Дополнительная проверка
@@ -204,16 +212,31 @@ document.getElementById('exitBtn').addEventListener('click', function() {
         setTimeout(() => {
             console.log('Закрываем WebApp...');
             
-            // Дополнительная попытка отправки данных
-            if (window.Telegram && window.Telegram.WebApp) {
+            // Дополнительная попытка отправки данных (только если первая не удалась)
+            if (window.Telegram && window.Telegram.WebApp && !dataSent) {
                 try {
+                    // Получаем данные формы для дополнительной отправки
+                    let formData = null;
+                    const userId = window.progressManager ? window.progressManager.userId : 'unknown';
+                    const formDataKey = `formData_${userId}`;
+                    
+                    let savedFormData = localStorage.getItem(formDataKey) || sessionStorage.getItem(formDataKey);
+                    if (!savedFormData) {
+                        savedFormData = localStorage.getItem('formData') || sessionStorage.getItem('formData');
+                    }
+                    
+                    if (savedFormData) {
+                        formData = JSON.parse(savedFormData);
+                    }
+                    
                     const userData = {
                         action: 'thank_you_response',
-                        user_id: window.progressManager ? window.progressManager.userId : 'unknown',
-                        timestamp: new Date().toISOString()
+                        user_id: userId,
+                        timestamp: new Date().toISOString(),
+                        form_data: formData
                     };
                     window.Telegram.WebApp.sendData(JSON.stringify(userData));
-                    console.log('Дополнительная отправка данных выполнена');
+                    console.log('Дополнительная отправка данных с формой выполнена');
                 } catch (e) {
                     console.error('Ошибка при дополнительной отправке:', e);
                 }

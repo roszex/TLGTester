@@ -137,6 +137,15 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
     console.log('User ID:', window.progressManager ? window.progressManager.userId : 'неизвестен');
     
     try {
+        // Сохраняем данные формы в localStorage для отправки в бот
+        try {
+            localStorage.setItem('formData', JSON.stringify(formData));
+            sessionStorage.setItem('formData', JSON.stringify(formData));
+            console.log('✅ Данные формы сохранены в localStorage и sessionStorage');
+        } catch (e) {
+            console.error('❌ Ошибка при сохранении данных формы:', e);
+        }
+        
         // Сохраняем данные формы
         if (window.progressManager) {
             console.log('Начинаем сохранение через ProgressManager...');

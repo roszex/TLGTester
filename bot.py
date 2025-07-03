@@ -79,7 +79,26 @@ async def handle_webapp_data(message: types.Message):
             if data.get('action') == 'thank_you_response':
                 # Пользователь завершил приложение
                 user_id = data.get('user_id', 'unknown')
+                form_data = data.get('form_data', {})
                 print(f"Bot: Пользователь {user_id} завершил приложение")
+                print(f"Bot: Данные формы: {form_data}")
+                
+                # Формируем сообщение с данными формы
+                form_message = ""
+                if form_data:
+                    form_message = "\n\n📋 Введенные данные:\n"
+                    if form_data.get('age'):
+                        form_message += f"• Возраст: {form_data['age']} лет\n"
+                    if form_data.get('occupation'):
+                        form_message += f"• Деятельность: {form_data['occupation']}\n"
+                    if form_data.get('income'):
+                        form_message += f"• Доход: {form_data['income']}\n"
+                    if form_data.get('motivation'):
+                        form_message += f"• Мотивация: {form_data['motivation']}\n"
+                    if form_data.get('teamwork'):
+                        form_message += f"• Командная работа: {form_data['teamwork']}\n"
+                else:
+                    form_message = "\n\n📋 Данные формы не найдены"
                 
                 # Создаем клавиатуру с кнопкой рестарта
                 builder = ReplyKeyboardBuilder()
@@ -88,14 +107,16 @@ async def handle_webapp_data(message: types.Message):
                     web_app=WebAppInfo(url=f"{WEBAPP_URL}?user_id={user_id}")
                 ))
                 
-                # Отправляем фото с описанием и кнопкой рестарта
+                # Отправляем фото с описанием, данными формы и кнопкой рестарта
+                caption = f"Если тебе интересно рассчитать стоимость под твой проект или сделать подобный -{form_message}\n\nСвязь со мной: @desperatecoder\n\nТелеграм канал: https://t.me/desperateecoder"
+                
                 await message.answer_photo(
                     photo=types.FSInputFile("outro_photo.jpeg"),
-                    caption="Если тебе интересно рассчитать стоимость под твой проект или сделать подобный - \n\nСвязь со мной: @desperatecoder\n\nТелеграм канал: https://t.me/desperateecoder",
+                    caption=caption,
                     reply_markup=builder.as_markup(resize_keyboard=True)
                 )
                 
-                print(f"Bot: Сообщение с кнопкой рестарта отправлено пользователю {user_id}")
+                print(f"Bot: Сообщение с данными формы и кнопкой рестарта отправлено пользователю {user_id}")
                 
             else:
                 print(f"Bot: Неизвестное действие: {data.get('action')}")

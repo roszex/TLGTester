@@ -108,7 +108,7 @@ async def handle_webapp_data(message: types.Message):
                 ))
                 
                 # Отправляем фото с описанием, данными формы и кнопкой рестарта
-                caption = f"Если тебе интересно рассчитать стоимость под твой проект или сделать подобный -{form_message}\n\nСвязь со мной: @desperatecoder\n\nТелеграм канал: https://t.me/desperateecoder"
+                caption = f"{form_message}\n\nЕсли тебе интересно рассчитать стоимость под твой проект или сделать подобный -\n\nСвязь со мной: @desperatecoder\n\nТелеграм канал: https://t.me/desperateecoder"
                 
                 try:
                     await message.answer_photo(

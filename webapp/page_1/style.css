@@ -11,9 +11,9 @@ body {
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    touch-action: pan-y;
     overscroll-behavior: none;
-    -webkit-touch-action: manipulation;
+    -webkit-touch-action: pan-y;
     -webkit-text-size-adjust: none;
     text-size-adjust: none;
   }
@@ -44,8 +44,8 @@ body {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     -webkit-overflow-scrolling: touch;
-    touch-action: manipulation;
-    -webkit-touch-action: manipulation;
+    touch-action: pan-y;
+    -webkit-touch-action: pan-y;
   }
   
   .container {

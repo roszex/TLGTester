@@ -14,9 +14,9 @@ body {
     -webkit-overflow-scrolling: touch;
     position: relative;
 
-    /* Prevent zoom and rotation */
-    touch-action: manipulation;
-    -webkit-touch-action: manipulation;
+    /* Allow vertical scrolling */
+    touch-action: pan-y;
+    -webkit-touch-action: pan-y;
     /* Prevent text selection and zoom */
     -webkit-text-size-adjust: none;
     -moz-text-size-adjust: none;
@@ -80,9 +80,9 @@ html {
     -ms-text-size-adjust: 100%;
     text-size-adjust: 100%;
 
-    /* Prevent zoom and rotation */
-    touch-action: manipulation;
-    -webkit-touch-action: manipulation;
+    /* Allow vertical scrolling */
+    touch-action: pan-y;
+    -webkit-touch-action: pan-y;
 }
 
 .container {

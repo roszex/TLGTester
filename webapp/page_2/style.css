@@ -14,9 +14,9 @@ body {
     /* iPhone Safari specific */
     -webkit-overflow-scrolling: touch;
 
-    /* Prevent zoom and rotation */
-    touch-action: manipulation;
-    -webkit-touch-action: manipulation;
+    /* Allow vertical scrolling */
+    touch-action: pan-y;
+    -webkit-touch-action: pan-y;
     /* Prevent text selection and zoom */
     -webkit-text-size-adjust: none;
     -moz-text-size-adjust: none;
@@ -82,9 +82,9 @@ html {
     /* iPhone Safari specific */
     -webkit-overflow-scrolling: touch;
 
-    /* Prevent zoom and rotation */
-    touch-action: manipulation;
-    -webkit-touch-action: manipulation;
+    /* Allow vertical scrolling */
+    touch-action: pan-y;
+    -webkit-touch-action: pan-y;
 }
 
 .container {

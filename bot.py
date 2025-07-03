@@ -49,15 +49,15 @@ async def start(message: types.Message):
     
     # Формируем приветствие
     if message.from_user and message.from_user.username:
-        greeting = f"Привет, @{message.from_user.username}! Я Emelyanov и это моя история:"
+        greeting = f"Привет, @{message.from_user.username}! Это демонстрационный вариант Telegram Lead Generator:"
     elif message.from_user and message.from_user.first_name:
-        greeting = f"Привет, {message.from_user.first_name}! Я Emelyanov и это моя история:"
+        greeting = f"Привет, {message.from_user.first_name}! Это демонстрационный вариант Telegram Lead Generator:"
     else:
-        greeting = "Привет! Я Emelyanov и это моя история:"
+        greeting = "Привет!  Это демонстрационный вариант Telegram Lead Generator:"
     
     builder = ReplyKeyboardBuilder()
     builder.add(KeyboardButton(
-        text="Читать историю",
+        text="Смотреть",
         web_app=WebAppInfo(url=webapp_url)
     ))
     await message.answer(
@@ -84,7 +84,7 @@ async def handle_webapp_data(message: types.Message):
                 # Отправляем фото с описанием
                 await message.answer_photo(
                     photo=types.FSInputFile("outro_photo.jpeg"),
-                    caption="Потом сочтемся)\n\nПиши мне на аккаунт @EmelyanAssis, мой ассистент назначит время созвона.\n\nДо встречи братец! Я полетел",
+                    caption="Если тебе интересно рассчитать стоимость под твой проект или сделать подобный - \n\nСвязь со мной: @desperatecoder\n\nТелеграм канал: https://t.me/desperateecoder",
                     reply_markup=types.ReplyKeyboardRemove()
                 )
             else:

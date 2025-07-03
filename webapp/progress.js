@@ -59,19 +59,56 @@ class ProgressManager {
     initTelegramWebApp() {
         if (window.Telegram && window.Telegram.WebApp) {
             try {
-                window.Telegram.WebApp.ready();
-                console.log('ProgressManager: Telegram WebApp готов');
+                const tg = window.Telegram.WebApp;
                 
-                // Устанавливаем тему
-                window.Telegram.WebApp.setHeaderColor('#000000');
-                window.Telegram.WebApp.setBackgroundColor('#000000');
+                // Расширяем WebApp на весь экран
+                tg.expand();
+                console.log('ProgressManager: WebApp расширен');
                 
+                // Запрашиваем полноэкранный режим если доступен
+                if (tg.requestFullscreen) {
+                    tg.requestFullscreen();
+                    console.log('ProgressManager: Запрошен полноэкранный режим');
+                }
+                
+                // Устанавливаем цвета темы для соответствия приложению
+                tg.setHeaderColor('#000000');
+                tg.setBackgroundColor('#000000');
                 console.log('ProgressManager: Тема установлена');
+                
+                // Отключаем подтверждение закрытия для предотвращения сообщения "изменения могут не сохраниться"
+                if (tg.enableClosingConfirmation) {
+                    // Не включаем подтверждение закрытия
+                }
+                
+                // Устанавливаем основную кнопку если нужно
+                if (tg.MainButton) {
+                    tg.MainButton.hide();
+                }
+                
+                // Устанавливаем безопасную зону для контента
+                if (tg.setViewportSettings) {
+                    tg.setViewportSettings({
+                        can_minimize: false,
+                        can_expand: true
+                    });
+                    console.log('ProgressManager: Настройки viewport установлены');
+                }
+                
+                // Дополнительная защита от закрытия
+                if (tg.MainButton) {
+                    tg.MainButton.hide();
+                }
+                
+                // Говорим Telegram что WebApp готов
+                tg.ready();
+                console.log('ProgressManager: Telegram WebApp готов и инициализирован');
+                
             } catch (error) {
                 console.error('ProgressManager: Ошибка инициализации Telegram WebApp:', error);
             }
         } else {
-            console.log('ProgressManager: Telegram WebApp недоступен');
+            console.log('ProgressManager: Telegram WebApp недоступен - запуск в режиме браузера');
         }
     }
     

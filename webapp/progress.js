@@ -1,6 +1,10 @@
-// Простой ProgressManager для Telegram WebApp
+// Простой ProgressManager для Telegram WebApp - ТЕСТИРОВАНИЕ
+// ВСЕ ОТПРАВКИ ДАННЫХ ОТКЛЮЧЕНЫ
+
 class ProgressManager {
     constructor() {
+        console.log('=== ТЕСТИРОВАНИЕ - ProgressManager ===');
+        console.log('ProgressManager: ВСЕ ОТПРАВКИ ДАННЫХ ОТКЛЮЧЕНЫ');
         console.log('ProgressManager: Конструктор вызван');
         console.log('ProgressManager: Telegram WebApp доступен:', !!(window.Telegram && window.Telegram.WebApp));
         
@@ -45,138 +49,52 @@ class ProgressManager {
         console.log('ProgressManager: User ID =', this.userId);
         console.log('ProgressManager: Telegram =', this.isTelegram);
         console.log('ProgressManager: Server URL =', this.serverUrl);
+        console.log('ProgressManager: ⚠️ ТЕСТИРОВАНИЕ - ВСЕ ОТПРАВКИ ДАННЫХ ОТКЛЮЧЕНЫ ⚠️');
+        console.log('ProgressManager: Данные НЕ будут отправляться на сервер');
         
         // НЕ восстанавливаем прогресс при загрузке автоматически
         // Это будет делаться только при явном вызове
     }
     
-    // Инициализация Telegram WebApp для полноэкранного режима
     initTelegramWebApp() {
         if (window.Telegram && window.Telegram.WebApp) {
-            const tg = window.Telegram.WebApp;
-            
             try {
-                // Расширяем WebApp на весь экран
-                tg.expand();
+                window.Telegram.WebApp.ready();
+                console.log('ProgressManager: Telegram WebApp готов');
                 
-                // Запрашиваем полноэкранный режим если доступен
-                if (tg.requestFullscreen) {
-                    tg.requestFullscreen();
-                }
+                // Устанавливаем тему
+                window.Telegram.WebApp.setHeaderColor('#000000');
+                window.Telegram.WebApp.setBackgroundColor('#000000');
                 
-                // Устанавливаем цвета темы для соответствия приложению
-                tg.setHeaderColor('#000000');
-                tg.setBackgroundColor('#000000');
-                
-                // Отключаем подтверждение закрытия для предотвращения сообщения "изменения могут не сохраниться"
-                if (tg.enableClosingConfirmation) {
-                    // Не включаем подтверждение закрытия
-                }
-                
-                // Устанавливаем основную кнопку если нужно
-                if (tg.MainButton) {
-                    tg.MainButton.hide();
-                }
-                
-                // Устанавливаем безопасную зону для контента
-                if (tg.setViewportSettings) {
-                    tg.setViewportSettings({
-                        can_minimize: false,
-                        can_expand: true
-                    });
-                }
-                
-                // Отключаем возможность закрытия свайпами
-                if (tg.enableClosingConfirmation) {
-                    // Не включаем подтверждение закрытия
-                }
-                
-                // Дополнительная защита от закрытия
-                if (tg.MainButton) {
-                    tg.MainButton.hide();
-                }
-                
-                console.log('Telegram WebApp инициализирован успешно в полноэкранном режиме с безопасной зоной');
+                console.log('ProgressManager: Тема установлена');
             } catch (error) {
-                console.error('Ошибка инициализации Telegram WebApp:', error);
+                console.error('ProgressManager: Ошибка инициализации Telegram WebApp:', error);
             }
         } else {
-            console.log('Telegram WebApp недоступен - запуск в режиме браузера');
+            console.log('ProgressManager: Telegram WebApp недоступен');
         }
     }
     
     getCurrentPage() {
-        const path = window.location.pathname;
-        const match = path.match(/page_(\d+)/);
-        return match ? parseInt(match[1]) : 1;
+        const currentUrl = window.location.href;
+        const pageMatch = currentUrl.match(/page_(\d+)/);
+        if (pageMatch) {
+            return parseInt(pageMatch[1]);
+        }
+        return 1;
     }
     
     async saveCurrentPage() {
-        if (!this.userId) {
-            console.log('ProgressManager: Нет user ID, пропускаем сохранение');
-            return;
-        }
-        
-        const page = this.getCurrentPage();
-        console.log('ProgressManager: Сохраняем страницу', page);
-        
-        try {
-            const response = await fetch(`${this.serverUrl}/api/save_progress`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    user_id: this.userId,
-                    current_page: page
-                })
-            });
-            
-            if (response.ok) {
-                console.log('ProgressManager: Страница сохранена');
-            } else {
-                console.error('ProgressManager: Ошибка сохранения', response.status);
-            }
-        } catch (error) {
-            console.error('ProgressManager: Ошибка сети', error);
-        }
+        console.log('⚠️ ProgressManager: ТЕСТИРОВАНИЕ - сохранение страницы ОТКЛЮЧЕНО');
+        console.log('⚠️ Данные НЕ отправляются на сервер');
+        return;
     }
     
     async saveFormData(formData) {
-        if (!this.userId) {
-            console.log('ProgressManager: Нет user ID, пропускаем сохранение формы');
-            return false;
-        }
-        
-        console.log('ProgressManager: Сохраняем форму для пользователя', this.userId);
-        
-        try {
-            const requestBody = {
-                user_id: this.userId,
-                form_data: formData
-            };
-            
-            const response = await fetch(`${this.serverUrl}/api/save_form_data`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
-            });
-            
-            if (response.ok) {
-                const responseData = await response.json();
-                console.log('ProgressManager: Форма сохранена успешно');
-                return true;
-            } else {
-                const errorText = await response.text();
-                console.error('ProgressManager: Ошибка сохранения формы', response.status, errorText);
-                return false;
-            }
-        } catch (error) {
-            console.error('ProgressManager: Ошибка сети при сохранении формы', error);
-            return false;
-        }
+        console.log('⚠️ ProgressManager: ТЕСТИРОВАНИЕ - сохранение формы ОТКЛЮЧЕНО');
+        console.log('⚠️ Данные формы (НЕ отправляются):', formData);
+        console.log('⚠️ В реальном приложении эти данные были бы отправлены на сервер');
+        return true; // Возвращаем true для продолжения работы
     }
     
     async goToNextPage() {
@@ -185,8 +103,8 @@ class ProgressManager {
         
         console.log('ProgressManager: Переход на страницу', nextPage);
         
-        // Если это последняя страница (25), возвращаемся к первой
-        if (currentPage >= 25) {
+        // Если это последняя страница (4), возвращаемся к первой
+        if (currentPage >= 4) {
             console.log('ProgressManager: Это последняя страница, возвращаемся к началу');
             const currentUrl = window.location.href;
             const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
@@ -196,9 +114,6 @@ class ProgressManager {
             window.location.href = newUrl;
             return;
         }
-        
-        // Сохраняем прогресс на следующую страницу
-        await this.savePage(nextPage);
         
         // Переходим на следующую страницу
         const currentUrl = window.location.href;
@@ -210,122 +125,32 @@ class ProgressManager {
     }
     
     async savePage(pageNumber) {
-        if (!this.userId) {
-            console.log('ProgressManager: Нет user ID, пропускаем сохранение страницы', pageNumber);
-            return;
-        }
-        
-        console.log('ProgressManager: Сохраняем страницу', pageNumber, 'для пользователя', this.userId);
-        
-        try {
-            const requestBody = {
-                user_id: this.userId,
-                current_page: pageNumber
-            };
-            console.log('ProgressManager: Отправляем запрос:', requestBody);
-            
-            const response = await fetch(`${this.serverUrl}/api/save_progress`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
-            });
-            
-            console.log('ProgressManager: Получен ответ:', response.status, response.statusText);
-            
-            if (response.ok) {
-                const responseData = await response.json();
-                console.log('ProgressManager: Страница', pageNumber, 'сохранена, ответ:', responseData);
-            } else {
-                const errorText = await response.text();
-                console.error('ProgressManager: Ошибка сохранения страницы', pageNumber, response.status, errorText);
-            }
-        } catch (error) {
-            console.error('ProgressManager: Ошибка сети при сохранении страницы', pageNumber, error);
-        }
+        console.log('⚠️ ProgressManager: ТЕСТИРОВАНИЕ - сохранение страницы', pageNumber, 'ОТКЛЮЧЕНО');
+        console.log('⚠️ Данные НЕ отправляются на сервер');
+        return;
     }
     
     async getSavedProgress() {
-        if (!this.userId) {
-            console.log('ProgressManager: Нет user ID, пропускаем получение прогресса');
-            return null;
-        }
-        
-        try {
-            const response = await fetch(`${this.serverUrl}/api/get_progress/${encodeURIComponent(this.userId)}`);
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('ProgressManager: Получен прогресс', data);
-                return data;
-            } else {
-                console.error('ProgressManager: Ошибка получения прогресса', response.status);
-                return null;
-            }
-        } catch (error) {
-            console.error('ProgressManager: Ошибка сети при получении прогресса', error);
-            return null;
-        }
+        console.log('⚠️ ProgressManager: ТЕСТИРОВАНИЕ - получение прогресса ОТКЛЮЧЕНО');
+        console.log('⚠️ Данные НЕ загружаются с сервера');
+        return null;
     }
     
     async restoreProgressOnLoad() {
-        console.log('ProgressManager: Восстанавливаем прогресс при загрузке...');
-        
-        // Получаем текущую страницу
-        const currentPage = this.getCurrentPage();
-        console.log('ProgressManager: Текущая страница:', currentPage);
-        
-        // Если мы на первой странице, проверяем есть ли сохраненный прогресс
-        if (currentPage === 1) {
-            const savedProgress = await this.getSavedProgress();
-            
-            if (savedProgress && savedProgress.current_page && savedProgress.current_page > 1) {
-                console.log(`ProgressManager: Найден сохраненный прогресс - страница ${savedProgress.current_page}`);
-                
-                // Переходим на сохраненную страницу
-                const currentUrl = window.location.href;
-                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-                const newUrl = baseUrl + `/../page_${savedProgress.current_page}/index.html?user_id=${this.userId}`;
-                
-                console.log('ProgressManager: Переходим на сохраненную страницу', newUrl);
-                window.location.href = newUrl;
-                return;
-            }
-        }
-        
-        // Если мы не на первой странице или нет сохраненного прогресса, НЕ сохраняем автоматически
-        // Прогресс будет сохранен только при явном переходе пользователя
-        console.log('ProgressManager: НЕ сохраняем автоматически - ждем действий пользователя');
+        console.log('⚠️ ProgressManager: ТЕСТИРОВАНИЕ - восстановление прогресса ОТКЛЮЧЕНО');
+        console.log('⚠️ Данные НЕ загружаются с сервера');
+        return;
     }
     
     async restoreProgress() {
-        const savedProgress = await this.getSavedProgress();
-        
-        if (savedProgress && savedProgress.current_page) {
-            const currentPage = this.getCurrentPage();
-            const savedPage = savedProgress.current_page;
-            
-            // Если мы не на той странице, куда нужно вернуться
-            if (currentPage !== savedPage) {
-                console.log(`ProgressManager: Восстанавливаем прогресс с страницы ${savedPage}`);
-                
-                // Переходим на сохраненную страницу
-                const currentUrl = window.location.href;
-                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/'));
-                const newUrl = baseUrl + `/../page_${savedPage}/index.html?user_id=${this.userId}`;
-                
-                console.log('ProgressManager: Переходим на сохраненную страницу', newUrl);
-                window.location.href = newUrl;
-                return true;
-            }
-        }
-        
+        console.log('⚠️ ProgressManager: ТЕСТИРОВАНИЕ - восстановление прогресса ОТКЛЮЧЕНО');
+        console.log('⚠️ Данные НЕ загружаются с сервера');
         return false;
     }
 }
 
 // Создаем глобальный экземпляр
-console.log('ProgressManager: Создаем экземпляр...');
+console.log('=== ТЕСТИРОВАНИЕ - Создание ProgressManager ===');
+console.log('⚠️ ВСЕ ОТПРАВКИ ДАННЫХ ОТКЛЮЧЕНЫ ⚠️');
 window.progressManager = new ProgressManager();
 console.log('ProgressManager: Экземпляр создан', window.progressManager); 

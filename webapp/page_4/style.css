@@ -94,6 +94,7 @@ html {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     min-height: calc(100vh - 110px);
     box-sizing: border-box;
     animation: fadeIn 0.3s ease-in;
@@ -142,50 +143,10 @@ html {
 .title {
     font-size: 1.5rem;
     font-weight: bold;
-    margin-bottom: 18px;
+    margin-bottom: 48px;
     margin-top: 0;
     text-align: center;
     color: #fff;
-}
-
-.main-photo {
-    width: 100%;
-    max-width: 320px;
-    border-radius: 12px;
-    margin-bottom: 24px;
-    opacity: 0;
-    animation: photoLoad 0.4s ease-in 0.1s forwards;
-    /* iPhone Safari specific */
-    -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
-    user-drag: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-/* Анимация загрузки фото */
-@keyframes photoLoad {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.description {
-    font-size: 1.1rem;
-    color: #fff;
-    margin-bottom: 32px;
-    text-align: center;
 }
 
 .lets-go {
@@ -199,100 +160,41 @@ html {
     border: none;
     border-radius: 15px;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s, transform 0.2s;
-    -webkit-tap-highlight-color: transparent;
-    /* iPhone Safari specific */
-    -webkit-appearance: none;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .lets-go:hover {
-    transform: scale(1.02);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .lets-go:active {
-    background: #eee;
-    color: #000;
-    transform: scale(0.98);
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Предзагрузка изображений */
-.preload-images {
-    position: absolute;
-    left: -9999px;
-    top: -9999px;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-} 
-/* Стили для bio-text и bio-content */
-.bio-text {
-    color: #fff;
-    margin-bottom: 32px;
-    text-align: left;
-    width: 100%;
-    max-width: 320px;
-}
-
-.centered {
-    text-align: center;
-}
-
-.bio-content {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    text-align: justify;
-    font-family: 'Segoe UI', Arial, sans-serif;
-}
-
-.bio-content p {
-    margin-bottom: 12px;
-}
-
-.photo-caption {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #ff0000;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-/* Mobile responsiveness для новых элементов */
+/* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
-    .bio-content {
-        font-size: 16px;
+    .title {
+        font-size: 1.3rem;
+        margin-bottom: 40px;
     }
     
-    .bio-content p {
-        margin-bottom: 12px;
-    }
-    
-    .photo-caption {
-        font-size: 18px;
-        margin-bottom: 20px;
+    .lets-go {
+        font-size: 1.1rem;
+        padding: 14px 0;
     }
 }
 
 @media (max-width: 480px) {
-    .bio-content {
-        font-size: 16px;
+    .title {
+        font-size: 1.2rem;
+        margin-bottom: 36px;
     }
     
-    .photo-caption {
-        font-size: 18px;
+    .lets-go {
+        font-size: 1rem;
+        padding: 12px 0;
     }
-}
-
-/* Стили для красного текста */
-.red-text {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #ff0000;
-    margin: 20px 0;
-    text-align: center;
 }

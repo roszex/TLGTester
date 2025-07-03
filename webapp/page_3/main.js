@@ -122,6 +122,28 @@ window.addEventListener('load', async function() {
         }
     }
     
+    // Очищаем форму при загрузке страницы
+    console.log('Очищаем форму для нового заполнения');
+    document.getElementById('contactForm').reset();
+    
+    // Очищаем старые данные формы из localStorage
+    try {
+        const userId = window.progressManager ? window.progressManager.userId : 'unknown';
+        const formDataKey = `formData_${userId}`;
+        
+        // Удаляем данные по user_id
+        localStorage.removeItem(formDataKey);
+        sessionStorage.removeItem(formDataKey);
+        
+        // Также удаляем общие данные
+        localStorage.removeItem('formData');
+        sessionStorage.removeItem('formData');
+        
+        console.log('Старые данные формы очищены из localStorage');
+    } catch (e) {
+        console.log('Ошибка при очистке localStorage:', e);
+    }
+    
     // Принудительно сохраняем текущую страницу (3)
     if (window.progressManager) {
         window.progressManager.savePage(3);

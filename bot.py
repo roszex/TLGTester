@@ -28,8 +28,6 @@ def save_lead(user_data, form_data):
     try:
         lead_data = {
             "user_id": user_data.get('user_id'),
-            "first_name": user_data.get('first_name'),
-            "last_name": user_data.get('last_name'),
             "form_data": form_data
         }
         
@@ -68,12 +66,10 @@ async def notify_admin(user_data, form_data):
                 lead_number = len(leads)
         
         # Формируем простое сообщение для админа
-        username = user_data.get('username', '')
-        if username and not username.startswith('@'):
-            username = '@' + username
+        user_id = user_data.get('user_id', '')
         
         admin_message = f"🎯 Лид #{lead_number}\n"
-        admin_message += f"👤 {username}\n"
+        admin_message += f"👤 {user_id}\n"
         admin_message += f"⏰ {datetime.now().strftime('%d.%m %H:%M')}"
         
         # Отправляем уведомление админу
@@ -150,9 +146,6 @@ async def handle_webapp_data(message: types.Message):
                 user_data = {
                     'user_id': user_id,
                     'username': user_id.replace('@', '') if user_id.startswith('@') else None,
-                    'first_name': data.get('first_name', ''),
-                    'last_name': data.get('last_name', ''),
-                    'timestamp': data.get('timestamp', '')
                 }
                 
                 # Формируем сообщение с данными формы

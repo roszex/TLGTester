@@ -110,13 +110,21 @@ async def handle_webapp_data(message: types.Message):
                 # Отправляем фото с описанием, данными формы и кнопкой рестарта
                 caption = f"Если тебе интересно рассчитать стоимость под твой проект или сделать подобный -{form_message}\n\nСвязь со мной: @desperatecoder\n\nТелеграм канал: https://t.me/desperateecoder"
                 
-                await message.answer_photo(
-                    photo=types.FSInputFile("outro_photo.jpeg"),
-                    caption=caption,
-                    reply_markup=builder.as_markup(resize_keyboard=True)
-                )
-                
-                print(f"Bot: Сообщение с данными формы и кнопкой рестарта отправлено пользователю {user_id}")
+                try:
+                    await message.answer_photo(
+                        photo=types.FSInputFile("outro_image.JPG"),
+                        caption=caption,
+                        reply_markup=builder.as_markup(resize_keyboard=True)
+                    )
+                    print(f"Bot: Сообщение с данными формы и кнопкой рестарта отправлено пользователю {user_id}")
+                except Exception as photo_error:
+                    print(f"Bot: Ошибка при отправке фото: {photo_error}")
+                    # Отправляем только текст, если фото не удалось отправить
+                    await message.answer(
+                        caption,
+                        reply_markup=builder.as_markup(resize_keyboard=True)
+                    )
+                    print(f"Bot: Отправлено текстовое сообщение с данными формы пользователю {user_id}")
                 
             else:
                 print(f"Bot: Неизвестное действие: {data.get('action')}")
